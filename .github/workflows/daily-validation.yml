@@ -1,0 +1,23 @@
+---
+name: Daily
+
+on:
+  # Run on user request
+  workflow_dispatch:
+  # Run on schedule
+  schedule:
+    # daily at 9:00 UTC (2:00 MST)
+    - cron: '0 9 * * *'
+
+concurrency:
+  # Cancel any existing jobs related to the target branch
+  group: nightly-ci-${{ github.ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+
+  dummy:
+    runs-on: [self-hosted]
+    steps:
+      - name: Dummy step
+        run: cd .
