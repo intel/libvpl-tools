@@ -1,48 +1,40 @@
 ---
-name: Daily
+name: Check
 
 on:
+  # Run on pull requests, including when readiness state is changed
+  pull_request:
+    types: ['opened', 'synchronize', 'reopened', 'ready_for_review']
   # Run on user request
   workflow_dispatch:
-  # Run on schedule
-  schedule:
-    # daily at 9:00 UTC (2:00 MST)
-    - cron: '0 9 * * *'
 
 concurrency:
   # Cancel any existing jobs related to the target branch
-  group: nightly-ci-${{ github.ref || github.run_id }}
+  group: ready-ci-${{ github.ref || github.run_id }}
   cancel-in-progress: true
 
 jobs:
 
   lint:
-    if: true
+    if: '! github.event.pull_request.draft'
     uses: ./.github/workflows/lint.yml
 
   hadolint:
-    if: true
+    if: '! github.event.pull_request.draft'
     uses: ./.github/workflows/hadolint.yml
     with:
       output_prefix: tools-
 
   trivy:
-    if: true
+    if: '! github.event.pull_request.draft'
     uses: ./.github/workflows/trivy.yml
     with:
       output_prefix: tools-
 
   ip-leak-scan:
-    if: true
+    if: '! github.event.pull_request.draft'
     name: IP Leak Scan
     uses: ./.github/workflows/ipldt.yml
-    secrets: inherit
-    with:
-      output_prefix: tools-
-
-  source-malware-scan:
-    if: true
-    uses: ./.github/workflows/mcafee.yml
     secrets: inherit
     with:
       output_prefix: tools-
@@ -51,12 +43,12 @@ jobs:
   # that depend on this one can access the variables via
   # needs.setup-variables.outputs.<variable-name>
   setup-variables:
-    if: true
+    if: '! github.event.pull_request.draft'
     uses: ./.github/workflows/setup-variables.yml
     secrets: inherit
 
   linux-build:
-    if: true
+    if: '! github.event.pull_request.draft'
     needs: setup-variables
     uses: ./.github/workflows/cmake.yml
     with:
@@ -71,7 +63,7 @@ jobs:
       token: ${{ secrets.DISP_REPO_TOKEN }}
 
   windows-build:
-    if: true
+    if: '! github.event.pull_request.draft'
     needs: setup-variables
     uses: ./.github/workflows/cmake.yml
     with:
@@ -86,7 +78,7 @@ jobs:
       token: ${{ secrets.DISP_REPO_TOKEN }}
 
   coverity:
-    if: true
+    if: '! github.event.pull_request.draft'
     needs: [linux-build, windows-build]
     strategy:
       fail-fast: false
@@ -102,7 +94,7 @@ jobs:
       dependent_artifact: ${{ matrix.os }}-release-build
 
   linux-tools-build:
-    if: true
+    if: '! github.event.pull_request.draft'
     needs: [linux-build]
     uses: ./.github/workflows/cmake.yml
     with:
@@ -114,7 +106,7 @@ jobs:
       dependent_artifact: linux-release-build
 
   windows-tools-build:
-    if: true
+    if: '! github.event.pull_request.draft'
     needs: [windows-build]
     uses: ./.github/workflows/cmake.yml
     with:
@@ -125,26 +117,8 @@ jobs:
       no_artifacts: false
       dependent_artifact: windows-release-build
 
-  windows-malware-scan:
-    if: true
-    needs: [windows-tools-build]
-    uses: ./.github/workflows/mcafee.yml
-    secrets: inherit
-    with:
-      artifact_name: windows-tools-build
-      output_prefix: tools-
-
-  linux-malware-scan:
-    if: true
-    needs: [linux-tools-build]
-    uses: ./.github/workflows/mcafee.yml
-    secrets: inherit
-    with:
-      artifact_name: linux-tools-build
-      output_prefix: tools-
-
   windows-sscb:
-    if: true
+    if: '! github.event.pull_request.draft'
     needs: [windows-tools-build]
     uses: ./.github/workflows/sscb.yml
     with:
@@ -153,7 +127,7 @@ jobs:
       output_prefix: tools-
 
   linux-sscb:
-    if: true
+    if: '! github.event.pull_request.draft'
     needs: [linux-tools-build]
     uses: ./.github/workflows/sscb.yml
     with:
@@ -162,7 +136,7 @@ jobs:
       output_prefix: tools-
 
   bdba:
-    if: true
+    if: '! github.event.pull_request.draft'
     needs:
       - linux-tools-build
       - windows-tools-build
@@ -174,7 +148,7 @@ jobs:
     secrets: inherit
 
   windows-acceptance:
-    if: true
+    if: '! github.event.pull_request.draft'
     needs: [windows-build, windows-tools-build, setup-variables]
     strategy:
       fail-fast: true
@@ -199,7 +173,7 @@ jobs:
       test_ref: ${{ needs.setup-variables.outputs.test_ref }}
 
   linux-acceptance:
-    if: true
+    if: '! github.event.pull_request.draft'
     needs: [linux-build, linux-tools-build, setup-variables]
     strategy:
       fail-fast: true
@@ -226,84 +200,20 @@ jobs:
       distro_version: ${{ matrix.distro.version }}
       test_ref: ${{ needs.setup-variables.outputs.test_ref }}
 
-  ref-build:
-    if: true
-    needs: [setup-variables, linux-build, windows-build]
-    strategy:
-      fail-fast: true
-      matrix:
-        os:
-          - windows
-          - linux
-    uses: ./.github/workflows/cmake.yml
-    with:
-      os: ${{ matrix.os }}
-      build_type: release
-      artifact_name: ${{ matrix.os }}-ref-build
-      run_tests: false
-      no_artifacts: false
-      ref: ${{ needs.setup-variables.outputs.last_release_ref }}
-      dependent_artifact: ${{ matrix.os }}-release-build
-
-  diff-report:
-    if: true
-    needs: [linux-tools-build, windows-tools-build, ref-build]
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [windows, linux]
-    uses: ./.github/workflows/diff.yml
-    with:
-      report_name: ${{ matrix.os }}-tools-diff-report
-      left: ${{ matrix.os }}-ref-build
-      right: ${{ matrix.os }}-tools-build
-
-  distro-tests:
-    if: true
-    needs: [linux-build, linux-tools-build, setup-variables]
-    strategy:
-      fail-fast: true
-      matrix:
-        distro:
-          - family: rhel
-            version: 8.6
-          - family: sles
-            version: 15.4
-        gpu:
-          - gen12.5
-        os:
-          - linux
-        config:
-          - release
-    uses: ./.github/workflows/acceptance.yml
-    secrets: inherit
-    with:
-      os: ${{ matrix.os }}
-      build_type: ${{ matrix.config }}
-      lib_artifact: ${{ matrix.os }}-${{ matrix.config }}-build
-      tools_artifact: linux-tools-build
-      gpu: ${{ matrix.gpu }}
-      distro_family: ${{ matrix.distro.family }}
-      distro_version: ${{ matrix.distro.version }}
-      test_ref: ${{ needs.setup-variables.outputs.test_ref }}
-
-  summary:
-    if: true
+  required:
+    if: '! github.event.pull_request.draft'
     needs:
+      - lint
       - hadolint
       - trivy
       - ip-leak-scan
-      - source-malware-scan
       - coverity
-      - windows-malware-scan
-      - linux-malware-scan
       - windows-sscb
       - linux-sscb
       - bdba
-      - diff-report
       - windows-acceptance
       - linux-acceptance
-      - distro-tests
-    uses: ./.github/workflows/summary.yml
-    with:
-      output_prefix: tools-
+    runs-on: [self-hosted]
+    steps:
+      - name: Required Checks
+        run: cd .
