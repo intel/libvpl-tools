@@ -1,0 +1,47 @@
+#!/bin/bash
+###############################################################################
+# Copyright (C) Intel Corporation
+#
+# SPDX-License-Identifier: MIT
+###############################################################################
+# Run the test suite.
+#
+# Scope can be limited by providing subset of tests as argumene from among:
+# lint, unit
+set -o errexit ; set -o nounset
+
+if [ -z "$BASH_VERSION" ]; then
+  echo "This script must be run under bash"
+  exit 1
+fi
+
+script_dir="$( cd "$(dirname "${BASH_SOURCE[0]:-$0}")" >/dev/null 2>&1 ; pwd -P )"
+
+proj_dir="$(dirname "$script_dir")"
+
+if [ $# -eq 0 ]; then
+  # if no arguments provided enable all testing
+  do_lint=true
+else
+  do_lint=false
+fi
+
+while test $# -gt 0
+do
+  case "$1" in
+    lint) do_lint=true
+      ;;
+    *) echo "invalid option: '$1'";
+      exit 1
+      ;;
+  esac
+  shift
+done
+
+if [ "$do_lint" = true ] ; then
+  pushd "${proj_dir}"
+  pre-commit run --all-files
+  pre-commit run --hook-stage manual gitlint-ci
+  popd
+fi
+
