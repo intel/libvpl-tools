@@ -356,10 +356,7 @@ void vppPrintHelp(const char* strAppName, const char* strErrorMessage) {
         "             colorprimary - BT709 value 1, BT2020 value 9, refer to video spec(e.g. HEVC Table E.3) for more\n");
     printf(
         "             transfer_characteristic - BT709 value 1, ST2084 value 16, refer to video spec(e.g. HEVC Table E.4) for more\n");
-
-#ifdef ONEVPL_EXPERIMENTAL
     printf("   [-cfg::vpp config]    - Set VPP options via string-api\n");
-#endif
     printf(
         "   [-dump fileName]         - dump MSDK components configuration to the file in text form\n");
     printf("\n");
@@ -1894,13 +1891,11 @@ mfxStatus vppParseInputString(char* strInput[],
             else if (msdk_match(strInput[i], "-rbf")) {
                 pParams->bReadByFrame = true;
             }
-#ifdef ONEVPL_EXPERIMENTAL
             else if (msdk_match(strInput[i], "-cfg::vpp")) {
                 VAL_CHECK(1 + i == nArgNum);
                 i++;
                 pParams->m_vpp_cfg = strInput[i];
             }
-#endif
             else if (msdk_match(strInput[i], "-dump")) {
                 VAL_CHECK(1 + i == nArgNum);
                 i++;

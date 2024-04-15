@@ -595,10 +595,10 @@ mfxStatus CDecodingPipeline::Init(sInputParams* pParams) {
             auto par         = m_mfxVppVideoParams.AddExtBuffer<mfxExtVPPScaling>();
             par->ScalingMode = pParams->ScalingMode;
         }
-#ifdef ONEVPL_EXPERIMENTAL
+
         sts = SetParameters((mfxSession)(m_mfxSession), m_mfxVppVideoParams, pParams->m_vpp_cfg);
         MSDK_CHECK_STATUS(sts, "SetParameters failed");
-#endif
+
         sts = m_pmfxVPP->Init(&m_mfxVppVideoParams);
         if (MFX_WRN_PARTIAL_ACCELERATION == sts) {
             printf("WARNING: partial acceleration\n");
@@ -1027,10 +1027,10 @@ mfxStatus CDecodingPipeline::InitMfxParams(sInputParams* pParams) {
     if (m_mfxVideoParams.mfx.CodecId == MFX_CODEC_AV1)
         m_mfxVideoParams.mfx.FilmGrain =
             pParams->bDisableFilmGrain ? 0 : m_mfxVideoParams.mfx.FilmGrain;
-#ifdef ONEVPL_EXPERIMENTAL
+
     sts = SetParameters((mfxSession)(m_mfxSession), m_mfxVideoParams, pParams->m_decode_cfg);
     MSDK_CHECK_STATUS(sts, "SetParameters failed");
-#endif
+
     return MFX_ERR_NONE;
 }
 
@@ -1580,10 +1580,10 @@ mfxStatus CDecodingPipeline::ResetDecoder(sInputParams* pParams) {
             auto par         = m_mfxVppVideoParams.AddExtBuffer<mfxExtVPPScaling>();
             par->ScalingMode = pParams->ScalingMode;
         }
-#ifdef ONEVPL_EXPERIMENTAL
+
         sts = SetParameters((mfxSession)(m_mfxSession), m_mfxVppVideoParams, pParams->m_vpp_cfg);
         MSDK_CHECK_STATUS(sts, "SetParameters failed");
-#endif
+
         sts = m_pmfxVPP->Init(&m_mfxVppVideoParams);
         if (MFX_WRN_PARTIAL_ACCELERATION == sts) {
             printf("WARNING: partial acceleration\n");

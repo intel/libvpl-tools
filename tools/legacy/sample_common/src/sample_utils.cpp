@@ -2894,8 +2894,6 @@ int PrintLibMFXPath(struct dl_phdr_info* info, size_t size, void* data) {
 
 #endif // #if defined(_WIN32) || defined(_WIN64)
 
-#ifdef ONEVPL_EXPERIMENTAL
-
 mfxStatus SetParameter(mfxConfigInterface* config_interface,
                        MfxVideoParamsWrapper& par,
                        const std::string& param) {
@@ -2962,5 +2960,3 @@ mfxStatus SetParameters(mfxSession session, MfxVideoParamsWrapper& par, const st
     }
     return sts;
 }
-
-#endif // ONEVPL_EXPERIMENTAL

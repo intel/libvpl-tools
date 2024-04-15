@@ -792,11 +792,10 @@ mfxStatus CEncodingPipeline::InitMfxEncParams(sInputParams* pInParams) {
     }
 #endif
 
-#ifdef ONEVPL_EXPERIMENTAL
     mfxStatus sts =
         SetParameters((mfxSession)(m_mfxSession), m_mfxEncParams, pInParams->m_encode_cfg);
     MSDK_CHECK_STATUS(sts, "SetParameters failed");
-#endif
+
     return MFX_ERR_NONE;
 }
 
@@ -937,10 +936,10 @@ mfxStatus CEncodingPipeline::InitMfxVppParams(sInputParams* pInParams) {
     InitVppFilters();
 
     m_mfxVppParams.AsyncDepth = pInParams->nAsyncDepth;
-#ifdef ONEVPL_EXPERIMENTAL
+
     mfxStatus sts = SetParameters((mfxSession)(m_mfxSession), m_mfxVppParams, pInParams->m_vpp_cfg);
     MSDK_CHECK_STATUS(sts, "SetParameters failed");
-#endif
+
     return MFX_ERR_NONE;
 }
 

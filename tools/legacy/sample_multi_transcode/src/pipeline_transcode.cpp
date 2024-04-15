@@ -403,10 +403,8 @@ mfxStatus CTranscodingPipeline::VPPPreInit(sInputParams* pParams) {
         }
     }
 
-#ifdef ONEVPL_EXPERIMENTAL
     sts = SetParameters((mfxSession)(*m_pmfxSession), m_mfxVppParams, pParams->m_vpp_cfg);
     MSDK_CHECK_STATUS(sts, "SetParameters failed");
-#endif
 
     return sts;
 
@@ -2784,10 +2782,8 @@ mfxStatus CTranscodingPipeline::InitDecMfxParams(sInputParams* pInParams) {
         }
     }
 
-#ifdef ONEVPL_EXPERIMENTAL
     sts = SetParameters((mfxSession)(*m_pmfxSession), m_mfxDecParams, pInParams->m_decode_cfg);
     MSDK_CHECK_STATUS(sts, "SetParameters failed");
-#endif
 
     return MFX_ERR_NONE;
 } // mfxStatus CTranscodingPipeline::InitDecMfxParams()
@@ -3217,11 +3213,9 @@ mfxStatus CTranscodingPipeline::InitEncMfxParams(sInputParams* pInParams) {
         co3->ContentInfo = pInParams->ContentInfo;
     }
 
-#ifdef ONEVPL_EXPERIMENTAL
     mfxStatus sts =
         SetParameters((mfxSession)(*m_pmfxSession), m_mfxEncParams, pInParams->m_encode_cfg);
     MSDK_CHECK_STATUS(sts, "SetParameters failed");
-#endif
 
     return MFX_ERR_NONE;
 } // mfxStatus CTranscodingPipeline::InitEncMfxParams(sInputParams *pInParams)
@@ -3663,10 +3657,8 @@ mfxStatus CTranscodingPipeline::InitVppMfxParams(MfxVideoParamsWrapper& par,
     }
 #endif
 
-#ifdef ONEVPL_EXPERIMENTAL
     sts = SetParameters((mfxSession)(*m_pmfxSession), m_mfxVppParams, pInParams->m_vpp_cfg);
     MSDK_CHECK_STATUS(sts, "SetParameters failed");
-#endif
 
     return MFX_ERR_NONE;
 

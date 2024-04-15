@@ -870,12 +870,11 @@ void PrintHelp() {
     HELP_LINE(
         "                See mfxExtCodingOption3::ContentInfo/ScenarioInfo for supported <value>.");
     HELP_LINE("");
-#ifdef ONEVPL_EXPERIMENTAL
     HELP_LINE("  -cfg::enc <config string>   Set encoder options via string-api\n");
     HELP_LINE("  -cfg::dec <config string>   Set decoder options via string-api\n");
     HELP_LINE("  -cfg::vpp <config string>   Set VPP options via string-api\n");
     HELP_LINE("\n");
-#endif
+
     HELP_LINE("Config string forat:\n");
     HELP_LINE("  name=value(:name=value)*\n");
     HELP_LINE("  name=value:name2=value2:name3=value3\n");
@@ -2084,7 +2083,6 @@ mfxStatus ParseAdditionalParams(char* argv[],
             return MFX_ERR_UNSUPPORTED;
         }
     }
-#ifdef ONEVPL_EXPERIMENTAL
     else if (msdk_match(argv[i], "-cfg::dec")) {
         VAL_CHECK(i + 1 == argc, i, argv[i]);
         i++;
@@ -2100,7 +2098,6 @@ mfxStatus ParseAdditionalParams(char* argv[],
         i++;
         InputParams.m_vpp_cfg = argv[i];
     }
-#endif
     else if (msdk_match(argv[i], "-QPOffset")) {
         InputParams.bSetQPOffset = true;
         VAL_CHECK(i + 1 >= argc, i, argv[i]);

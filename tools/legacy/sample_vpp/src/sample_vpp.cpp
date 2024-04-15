@@ -552,12 +552,10 @@ int sample_vpp_main(int argc, char* argv[]) {
         Params.bPartialAccel = false;
     }
 
-#ifdef ONEVPL_EXPERIMENTAL
     sts = SetParameters((mfxSession)Resources.pProcessor->mfxSession,
                         mfxParamsVideo,
                         Params.m_vpp_cfg);
     MSDK_CHECK_STATUS(sts, "SetParameters failed");
-#endif
 
     if (Params.bPerf) {
         for (int i = 0; i < Resources.numSrcFiles; i++) {
@@ -656,10 +654,9 @@ int sample_vpp_main(int argc, char* argv[]) {
                 WipeResources(&Resources);
                 WipeParams(&Params);
             });
-#ifdef ONEVPL_EXPERIMENTAL
+
             sts = SetParameters(Resources.pProcessor->mfxSession, mfxParamsVideo, Params.m_vpp_cfg);
             MSDK_CHECK_STATUS(sts, "SetParameters failed");
-#endif
 
             sts = ConfigVideoEnhancementFilters(&Params, &Resources, paramID);
             MSDK_CHECK_STATUS_SAFE(sts, "ConfigVideoEnchancementFilters failed", {

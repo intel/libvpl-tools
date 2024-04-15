@@ -355,10 +355,8 @@ void PrintHelp(char* strAppName, const char* strErrorMessage, ...) {
     printf(
         "   [-angle 180] - enables 180 degrees picture rotation before encoding, CPU implementation by default. Rotation requires NV12 input. Options -tff|bff, -dstw, -dsth, -d3d are not effective together with this one, -nv12 is required.\n");
     printf("   [-opencl] - rotation implementation through OPENCL\n\n");
-#ifdef ONEVPL_EXPERIMENTAL
     printf("   [-cfg::enc config]    - Set encoder options via string-api\n");
     printf("   [-cfg::vpp config]    - Set VPP options via string-api\n");
-#endif
     printf(
         "Example: %s h264|h265|mpeg2|mvc|jpeg -i InputYUVFile -o OutputEncodedFile -w width -h height -angle 180 -opencl \n",
         strAppName);
@@ -748,7 +746,6 @@ mfxStatus ParseAdditionalParams(char* strInput[],
         }
     }
 #endif
-#ifdef ONEVPL_EXPERIMENTAL
     else if (msdk_match(strInput[i], "-cfg::enc")) {
         VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
         i++;
@@ -759,7 +756,6 @@ mfxStatus ParseAdditionalParams(char* strInput[],
         i++;
         pParams->m_vpp_cfg = strInput[i];
     }
-#endif
     else {
         return MFX_ERR_NOT_FOUND;
     }
