@@ -173,6 +173,22 @@ jobs:
       pattern: "*-tools-build"
     secrets: inherit
 
+  sdl:
+    if: ${{ github.event.inputs.upload_sdl == 'true'}}
+    needs:
+      - linux-build
+      - windows-build
+      - summary
+    uses: ./.github/workflows/sdl.yml
+    with:
+      SUMMARY_ARTIFACT: lib-release-summary
+      LABEL: v1.0
+      SDLE_PROJECT: ${vars.SDLE_ID}
+      SDLE_USER: ${vars.SDLE_API_USER}
+      output_prefix: tools-
+    secrets:
+      SDLE_API_KEY: ${{ secrets.SDLE_API_KEY }}
+
   windows-acceptance:
     if: true
     needs: [windows-build, windows-tools-build, setup-variables]
