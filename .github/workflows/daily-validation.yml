@@ -4,6 +4,11 @@ name: Daily
 on:
   # Run on user request
   workflow_dispatch:
+    inputs:
+      upload_sdl:
+        description: 'Trigger SDL Upload'
+        required: false
+        default: 'false'
   # Run on schedule
   schedule:
     # daily at 9:00 UTC (2:00 MST)
@@ -179,12 +184,13 @@ jobs:
       - linux-build
       - windows-build
       - summary
+      - setup-variables
     uses: ./.github/workflows/sdl.yml
     with:
-      SUMMARY_ARTIFACT: lib-release-summary
-      LABEL: v1.0
-      SDLE_PROJECT: ${vars.SDLE_ID}
-      SDLE_USER: ${vars.SDLE_API_USER}
+      SUMMARY_ARTIFACT: tools-release-summary
+      LABEL: ${{ needs.setup-variables.outputs.tools_version }}
+      SDLE_PROJECT: ${{vars.SDLE_ID}}
+      SDLE_USER: ${{vars.SDLE_API_USER}}
       output_prefix: tools-
     secrets:
       SDLE_API_KEY: ${{ secrets.SDLE_API_KEY }}
