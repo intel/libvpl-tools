@@ -60,6 +60,9 @@ const char *_print_Impl(mfxIMPL impl) {
     switch (impl) {
         STRING_OPTION(MFX_IMPL_TYPE_SOFTWARE);
         STRING_OPTION(MFX_IMPL_TYPE_HARDWARE);
+
+        default:
+            break;
     }
 
     return "<unknown implementation>";
@@ -76,6 +79,9 @@ const char *_print_AccelMode(mfxAccelerationMode mode) {
         STRING_OPTION(MFX_ACCEL_MODE_VIA_VAAPI_X11);
         STRING_OPTION(MFX_ACCEL_MODE_VIA_VAAPI_WAYLAND);
         STRING_OPTION(MFX_ACCEL_MODE_VIA_HDDLUNITE);
+
+        default:
+            break;
     }
 
     return "<unknown acceleration mode>";
@@ -86,6 +92,9 @@ const char *_print_PoolPolicy(mfxPoolAllocationPolicy policy) {
         STRING_OPTION(MFX_ALLOCATION_OPTIMAL);
         STRING_OPTION(MFX_ALLOCATION_UNLIMITED);
         STRING_OPTION(MFX_ALLOCATION_LIMITED);
+
+        default:
+            break;
     }
 
     return "<unknown pool allocation policy>";
@@ -96,6 +105,9 @@ const char *_print_MediaAdapterType(mfxMediaAdapterType type) {
         STRING_OPTION(MFX_MEDIA_UNKNOWN);
         STRING_OPTION(MFX_MEDIA_INTEGRATED);
         STRING_OPTION(MFX_MEDIA_DISCRETE);
+
+        default:
+            break;
     }
 
     return "<unknown media adapter type>";
@@ -108,6 +120,9 @@ const char *_print_EncodeStatsType(mfxU16 type) {
         STRING_OPTION(MFX_ENCODESTATS_LEVEL_SLICE);
         STRING_OPTION(MFX_ENCODESTATS_LEVEL_TILE);
         STRING_OPTION(MFX_ENCODESTATS_LEVEL_FRAME);
+
+        default:
+            break;
     }
 
     return "<unknown encode stats type>";
@@ -121,6 +136,9 @@ const char *_print_SurfaceType(mfxSurfaceType type) {
         STRING_OPTION(MFX_SURFACE_TYPE_D3D11_TEX2D);
         STRING_OPTION(MFX_SURFACE_TYPE_VAAPI);
         STRING_OPTION(MFX_SURFACE_TYPE_OPENCL_IMG2D);
+
+        default:
+            break;
     }
 
     return "<unknown surface type>";
@@ -133,6 +151,9 @@ const char *_print_SurfaceComponent(mfxSurfaceComponent type) {
         STRING_OPTION(MFX_SURFACE_COMPONENT_DECODE);
         STRING_OPTION(MFX_SURFACE_COMPONENT_VPP_INPUT);
         STRING_OPTION(MFX_SURFACE_COMPONENT_VPP_OUTPUT);
+
+        default:
+            break;
     }
 
     return "<unknown surface component>";
@@ -144,6 +165,9 @@ const char *_print_SurfaceFlags(mfxU32 type) {
         STRING_OPTION(MFX_SURFACE_FLAG_IMPORT_COPY);
         STRING_OPTION(MFX_SURFACE_FLAG_EXPORT_SHARED);
         STRING_OPTION(MFX_SURFACE_FLAG_EXPORT_COPY);
+
+        default:
+            break;
     }
 
     return "<unknown surface flag type>";
@@ -160,6 +184,9 @@ const char *_print_ResourceType(mfxResourceType type) {
         STRING_OPTION(MFX_RESOURCE_DX12_RESOURCE);
         STRING_OPTION(MFX_RESOURCE_DMA_RESOURCE);
         STRING_OPTION(MFX_RESOURCE_HDDLUNITE_REMOTE_MEMORY);
+
+        default:
+            break;
     }
 
     return "<unknown resource type>";
