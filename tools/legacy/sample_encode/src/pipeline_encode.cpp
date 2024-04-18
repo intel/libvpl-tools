@@ -2759,7 +2759,7 @@ void CEncodingPipeline::PrintLibInfo() {
 }
 
 void CEncodingPipeline::PrintStreamInfo() {
-    printf("Encoding Sample Version %s\n", GetMSDKSampleVersion().c_str());
+    printf("Encoding Sample Version %s\n", GetToolVersion().c_str());
     printf("\nInput file format\t%s\n", ColorFormatToStr(m_FileReader.m_ColorFormat));
     printf("Output video\t\t%s\n", CodecIdToStr(m_mfxEncParams.mfx.CodecId).c_str());
 

@@ -141,7 +141,7 @@ void TranscodingSample::PrintError(const char* strErrorMessage, ...) {
 }
 
 void PrintHelp() {
-    printf("Multi Transcoding Sample Version %s\n", GetMSDKSampleVersion().c_str());
+    printf("Multi Transcoding Sample Version %s\n", GetToolVersion().c_str());
     HELP_LINE("");
     HELP_LINE("Command line parameters");
     HELP_LINE("");
@@ -1067,7 +1067,7 @@ mfxStatus CmdProcessor::ParseCmdLine(int argc, char* argv[]) {
         ++argv;
     }
 
-    printf("Multi Transcoding Sample Version %s\n\n", GetMSDKSampleVersion().c_str());
+    printf("Multi Transcoding Sample Version %s\n\n", GetToolVersion().c_str());
 
     //Read pipeline from par file
     if (!parameter_file_name.empty() && !argv[0]) {

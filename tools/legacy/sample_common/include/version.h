@@ -8,24 +8,20 @@
 
 #include "sample_defs.h"
 
-#ifndef MSDK_MAJOR
-    #define MSDK_MAJOR 8
+#ifndef TOOLS_VERSION_MAJOR
+    #define TOOLS_VERSION_MAJOR 0
 #endif
 
-#ifndef MSDK_MINOR
-    #define MSDK_MINOR 4
+#ifndef TOOLS_VERSION_MINOR
+    #define TOOLS_VERSION_MINOR 0
 #endif
 
-#ifndef MSDK_RELEASE
-    #define MSDK_TARGETAPIMINOR 27
+#ifndef TOOLS_VERSION_PATCH
+    #define TOOLS_VERSION_PATCH 0
 #endif
 
-#ifndef MSDK_BUILD
-    #define MSDK_BUILD 0
-#endif
-
-static std::string GetMSDKSampleVersion() {
+static std::string GetToolVersion() {
     std::stringstream ss;
-    ss << MSDK_MAJOR << "." << MSDK_MINOR << "." << MSDK_TARGETAPIMINOR << "." << MSDK_BUILD;
+    ss << TOOLS_VERSION_MAJOR << "." << TOOLS_VERSION_MINOR << "." << TOOLS_VERSION_PATCH;
     return ss.str();
 }

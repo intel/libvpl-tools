@@ -27,7 +27,7 @@
 // Intel® Video Processing Library (Intel® VPL)
 
 void vppPrintHelp(const char* strAppName, const char* strErrorMessage) {
-    printf("Intel(R) Media SDK VPP Sample version %s\n", GetMSDKSampleVersion().c_str());
+    printf("Intel(R) Media SDK VPP Sample version %s\n", GetToolVersion().c_str());
     if (strErrorMessage) {
         printf("Error: %s\n", strErrorMessage);
     }

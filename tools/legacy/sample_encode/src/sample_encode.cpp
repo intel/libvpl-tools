@@ -43,7 +43,7 @@
 // Intel® Video Processing Library (Intel® VPL)
 
 void PrintHelp(char* strAppName, const char* strErrorMessage, ...) {
-    printf("Encoding Sample Version %s\n\n", GetMSDKSampleVersion().c_str());
+    printf("Encoding Sample Version %s\n\n", GetToolVersion().c_str());
 
     if (strErrorMessage) {
         va_list args;

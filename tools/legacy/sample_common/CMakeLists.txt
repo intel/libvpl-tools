@@ -146,6 +146,13 @@ target_include_directories(
   ${TARGET} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include
                    ${CMAKE_CURRENT_SOURCE_DIR}/include/vm)
 
+target_compile_definitions(${TARGET}
+                           PUBLIC TOOLS_VERSION_MAJOR=${PROJECT_VERSION_MAJOR})
+target_compile_definitions(${TARGET}
+                           PUBLIC TOOLS_VERSION_MINOR=${PROJECT_VERSION_MINOR})
+target_compile_definitions(${TARGET}
+                           PUBLIC TOOLS_VERSION_PATCH=${PROJECT_VERSION_PATCH})
+
 if(MSVC)
   target_compile_definitions(${TARGET} PUBLIC _CRT_SECURE_NO_WARNINGS)
 endif()

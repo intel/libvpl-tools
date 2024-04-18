@@ -18,7 +18,7 @@
 // Intel® Video Processing Library (Intel® VPL)
 
 void PrintHelp(char* strAppName, const char* strErrorMessage) {
-    printf("Decoding Sample Version %s\n\n", GetMSDKSampleVersion().c_str());
+    printf("Decoding Sample Version %s\n\n", GetToolVersion().c_str());
 
     if (strErrorMessage) {
         printf("Error: %s\n", strErrorMessage);

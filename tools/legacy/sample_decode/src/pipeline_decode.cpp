@@ -2142,7 +2142,7 @@ void CDecodingPipeline::PrintLibInfo() {
 }
 
 void CDecodingPipeline::PrintStreamInfo() {
-    printf("Decoding Sample Version %s\n\n", GetMSDKSampleVersion().c_str());
+    printf("Decoding Sample Version %s\n\n", GetToolVersion().c_str());
     printf("\nInput video\t%s\n", CodecIdToStr(m_mfxVideoParams.mfx.CodecId).c_str());
     if (m_bVppIsUsed) {
         printf("Output format\t%s (using vpp)\n",
