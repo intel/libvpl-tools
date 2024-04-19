@@ -7,8 +7,9 @@ GPUs from the command line.
 The tools require the [Intel® VPL base library](https://github.com/intel/libvpl)
 and a runtime library installed. Current runtime implementations:
 
-- [oneVPL-intel-gpu](https://github.com/intel/libvpl-intel-gpu) for use on
-  Intel Xe graphics and newer
+
+- [Intel® VPL GPU Runtime](https://github.com/intel/vpl-gpu-rt) for use on
+  Intel® Iris® Xe graphics and newer
 - [Intel® Media SDK](https://github.com/Intel-Media-SDK/MediaSDK) for use on legacy
   Intel graphics
 

@@ -8,7 +8,7 @@ functionality of the Intel® Video Processing Library (Intel® VPL)
 | Support          | Description
 |----------------- | ----------------------------------------
 | OS               | Windows* 10, Windows* 11, Ubuntu* 22.04
-| Hardware         | Compatible with Intel® VPL GPU implementation, which can be found at https://github.com/oneapi-src/oneVPL-intel-gpu 
+| Hardware         | Compatible with Intel® VPL GPU implementation, which can be found at https://github.com/intel/vpl-gpu-rt 
 
 ## Command line options
 | Options          | Values     | Description
