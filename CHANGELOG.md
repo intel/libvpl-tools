@@ -10,9 +10,11 @@ GPUs from the command line.
 
 ## [Unreleased]
 
+## [1.0.0] - 2024-04-26
+
 ### Added
 - Intel® VPL API 2.11 support
-- Command line tools. They have been moved from a the libvpl repository
+- Command line tools. They have been moved from the libvpl repository
   (https://github.com/intel/libvpl)
 
 
