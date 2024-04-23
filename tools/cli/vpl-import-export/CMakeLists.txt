@@ -57,17 +57,18 @@ if(TOOLS_ENABLE_RENDER)
   endif()
 endif()
 
-# if OpenCL is not configured, disable use of it in this tool and print warning
-find_package(OpenCL CONFIG)
-if(NOT OpenCL_FOUND)
-  message(
-    WARNING "*** OpenCL not found. OpenCL surface sharing will be disabled.")
-  set(TOOLS_ENABLE_OPENCL OFF)
-endif()
-
 # OpenCL is currently supported on Windows only for this tool
-if(TOOLS_ENABLE_OPENCL)
-  if(WIN32)
+if(WIN32)
+  # if OpenCL is not configured, disable use of it in this tool and print
+  # warning
+  find_package(OpenCL CONFIG)
+  if(NOT OpenCL_FOUND)
+    message(
+      WARNING "*** OpenCL not found. OpenCL surface sharing will be disabled.")
+    set(TOOLS_ENABLE_OPENCL OFF)
+  endif()
+
+  if(TOOLS_ENABLE_OPENCL)
     target_compile_definitions(${TARGET} PRIVATE -DTOOLS_ENABLE_OPENCL)
     target_sources(${TARGET} PRIVATE src/process-frames-ocl-d3d11.cpp)
     target_link_libraries(${TARGET} PRIVATE OpenCL::OpenCL)
