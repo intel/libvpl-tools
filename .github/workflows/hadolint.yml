@@ -1,5 +1,6 @@
 ---
 name: Hadolint
+permissions: read-all
 
 on:
   workflow_call:

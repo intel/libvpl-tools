@@ -1,5 +1,6 @@
 ---
 name: Acceptance
+permissions: read-all
 
 on:
 

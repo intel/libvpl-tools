@@ -1,5 +1,6 @@
 ---
 name: CMake
+permissions: read-all
 
 on:
 

@@ -1,5 +1,6 @@
 ---
 name: IP Leak Scan
+permissions: read-all
 
 on:
 

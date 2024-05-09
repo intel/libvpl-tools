@@ -1,5 +1,6 @@
 ---
 name: Diff report
+permissions: read-all
 
 on:
   workflow_call:

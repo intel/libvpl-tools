@@ -1,5 +1,6 @@
 ---
 name: Coverity Scan
+permissions: read-all
 
 on:
 

@@ -1,5 +1,6 @@
 ---
 name: Daily
+permissions: read-all
 
 on:
   # Run on user request
