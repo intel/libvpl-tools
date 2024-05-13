@@ -25,6 +25,12 @@ jobs:
     with:
       output_prefix: tools-
 
+  trivy:
+    if: 'github.event.pull_request.draft'
+    uses: ./.github/workflows/trivy.yml
+    with:
+      output_prefix: tools-
+
   # This job configures variables that are useful for other jobs. Other jobs
   # that depend on this one can access the variables via
   # needs.setup-variables.outputs.<variable-name>
