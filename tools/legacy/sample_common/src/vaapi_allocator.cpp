@@ -248,11 +248,11 @@ mfxStatus vaapiFrameAllocator::AllocImpl(mfxFrameAllocRequest* request,
         if (VA_FOURCC_P208 != va_fourcc) {
             unsigned int format;
 
-            attrib[attrCnt].type          = VASurfaceAttribPixelFormat;
-            attrib[attrCnt].flags         = VA_SURFACE_ATTRIB_SETTABLE;
-            attrib[attrCnt].value.type    = VAGenericValueTypeInteger;
-            attrib[attrCnt].value.value.i = va_fourcc;
-            format                        = va_fourcc;
+            attrib[attrCnt].type            = VASurfaceAttribPixelFormat;
+            attrib[attrCnt].flags           = VA_SURFACE_ATTRIB_SETTABLE;
+            attrib[attrCnt].value.type      = VAGenericValueTypeInteger;
+            attrib[attrCnt++].value.value.i = va_fourcc;
+            format                          = va_fourcc;
 
             if ((fourcc == MFX_FOURCC_VP8_NV12) ||
                 ((MFX_MEMTYPE_FROM_ENCODE & request->Type) && (fourcc == MFX_FOURCC_BGR4))) {
@@ -260,6 +260,8 @@ mfxStatus vaapiFrameAllocator::AllocImpl(mfxFrameAllocRequest* request,
                  * RGB32 for JPEG is required
 		 */
                 attrib[attrCnt].type            = (VASurfaceAttribType)VASurfaceAttribUsageHint;
+                attrib[attrCnt].flags           = VA_SURFACE_ATTRIB_SETTABLE;
+                attrib[attrCnt].value.type      = VAGenericValueTypeInteger;
                 attrib[attrCnt++].value.value.i = VA_SURFACE_ATTRIB_USAGE_HINT_ENCODER;
             }
             else if (fourcc == MFX_FOURCC_VP8_MBDATA) {
