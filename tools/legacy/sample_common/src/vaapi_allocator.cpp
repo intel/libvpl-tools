@@ -54,6 +54,8 @@ unsigned int ConvertMfxFourccToVAFormat(mfxU32 fourcc) {
             return VA_FOURCC_Y216;
         case MFX_FOURCC_Y416:
             return VA_FOURCC_Y416;
+        case MFX_FOURCC_YUV400:
+            return VA_FOURCC_Y800;
 
         default:
             assert(!"unsupported fourcc");
@@ -133,7 +135,8 @@ static mfxStatus GetVAFourcc(mfxU32 fourcc, unsigned int& va_fourcc) {
                        (VA_FOURCC_Y210 != va_fourcc) && (VA_FOURCC_Y410 != va_fourcc) &&
                        (VA_FOURCC_RGB565 != va_fourcc) && (VA_FOURCC_RGBP != va_fourcc) &&
                        (VA_FOURCC_P016 != va_fourcc) && (VA_FOURCC_Y216 != va_fourcc) &&
-                       (VA_FOURCC_Y416 != va_fourcc) && (VA_FOURCC_AYUV != va_fourcc))) {
+                       (VA_FOURCC_Y416 != va_fourcc) && (VA_FOURCC_AYUV != va_fourcc) &&
+                       (VA_FOURCC_Y800 != va_fourcc))) {
         return MFX_ERR_MEMORY_ALLOC;
     }
 
@@ -278,6 +281,9 @@ mfxStatus vaapiFrameAllocator::AllocImpl(mfxFrameAllocRequest* request,
             }
             else if (fourcc == MFX_FOURCC_RGBP) {
                 format = VA_RT_FORMAT_RGBP;
+            }
+            else if (fourcc == MFX_FOURCC_YUV400) {
+                format = VA_RT_FORMAT_YUV400;
             }
 
             va_res = m_libva->vaCreateSurfaces(m_dpy,
@@ -484,6 +490,11 @@ mfxStatus vaapiFrameAllocator::LockFrame(mfxMemId mid, mfxFrameData* ptr) {
         }
         if (MFX_ERR_NONE == mfx_res) {
             switch (vaapi_mid->m_image.format.fourcc) {
+                case MFX_FOURCC_YUV400:
+                    if (mfx_fourcc != vaapi_mid->m_image.format.fourcc)
+                        return MFX_ERR_LOCK_MEMORY;
+                    { ptr->Y = pBuffer + vaapi_mid->m_image.offsets[0]; }
+                    break;
                 case VA_FOURCC_NV12:
                     if (mfx_fourcc != vaapi_mid->m_image.format.fourcc)
                         return MFX_ERR_LOCK_MEMORY;

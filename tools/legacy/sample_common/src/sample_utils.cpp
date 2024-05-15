@@ -284,7 +284,7 @@ mfxStatus CSmplYUVReader::LoadNextFrame(mfxFrameSurface1* pSurface) {
              MFX_FOURCC_P010 == pInfo.FourCC || MFX_FOURCC_P210 == pInfo.FourCC ||
              MFX_FOURCC_P016 == pInfo.FourCC || MFX_FOURCC_I010 == pInfo.FourCC ||
              MFX_FOURCC_P016 == pInfo.FourCC || MFX_FOURCC_I010 == pInfo.FourCC ||
-             MFX_FOURCC_I420 == pInfo.FourCC) {
+             MFX_FOURCC_I420 == pInfo.FourCC || MFX_FOURCC_YUV400 == pInfo.FourCC) {
         pitch = pData.Pitch;
         ptr   = pData.Y + pInfo.CropX + pInfo.CropY * pData.Pitch;
 

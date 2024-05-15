@@ -50,6 +50,7 @@ msdk_tick time_get_frequency(void) {
 
 mfxU16 FourCcBitDepth(mfxU32 fourCC) {
     switch (fourCC) {
+        case MFX_FOURCC_YUV400:
         case MFX_FOURCC_NV12:
         case MFX_FOURCC_NV16:
         case MFX_FOURCC_YUY2:
@@ -845,8 +846,8 @@ mfxStatus CEncodingPipeline::CheckHyperEncodeParams(mfxHyperMode hyperMode) {
 #endif
 
 mfxU32 CEncodingPipeline::FileFourCC2EncFourCC(mfxU32 fcc) {
-    // File reader automatically converts I420, YV12, and YUV400 to NV12
-    if (fcc == MFX_FOURCC_I420 || fcc == MFX_FOURCC_YV12 || fcc == MFX_FOURCC_YUV400)
+    // File reader automatically converts I420 and YV12 to NV12
+    if (fcc == MFX_FOURCC_I420 || fcc == MFX_FOURCC_YV12)
         return MFX_FOURCC_NV12;
     else
         return fcc;
@@ -1054,6 +1055,7 @@ mfxStatus CEncodingPipeline::AllocFrames() {
 
     // prepare allocation requests
     EncRequest.NumFrameSuggested = EncRequest.NumFrameMin = nEncSurfNum;
+
     MSDK_MEMCPY_VAR(EncRequest.Info, &(m_mfxEncParams.mfx.FrameInfo), sizeof(mfxFrameInfo));
     if (m_pmfxVPP) {
         EncRequest.Type |=
@@ -1650,15 +1652,11 @@ mfxStatus CEncodingPipeline::Init(sInputParams* pParams) {
 
     // FileReader can convert yv12->nv12 without vpp, when hw impl
     if (pParams->bUseHWLib) {
-        m_InputFourCC = ((pParams->FileInputFourCC == MFX_FOURCC_I420) ||
-                         (pParams->FileInputFourCC == MFX_FOURCC_YUV400))
-                            ? MFX_FOURCC_NV12
-                            : pParams->FileInputFourCC;
+        m_InputFourCC = (pParams->FileInputFourCC == MFX_FOURCC_I420) ? MFX_FOURCC_NV12
+                                                                      : pParams->FileInputFourCC;
 
-        pParams->EncodeFourCC = ((pParams->EncodeFourCC == MFX_FOURCC_I420) ||
-                                 (pParams->EncodeFourCC == MFX_FOURCC_YUV400))
-                                    ? MFX_FOURCC_NV12
-                                    : pParams->EncodeFourCC;
+        pParams->EncodeFourCC =
+            (pParams->EncodeFourCC == MFX_FOURCC_I420) ? MFX_FOURCC_NV12 : pParams->EncodeFourCC;
     }
     else {
         m_InputFourCC = pParams->FileInputFourCC;
