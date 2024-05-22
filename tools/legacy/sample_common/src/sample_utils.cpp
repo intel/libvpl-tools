@@ -83,6 +83,7 @@ mfxStatus GetFrameLength(mfxU16 width, mfxU16 height, mfxU32 ColorFormat, mfxU32
             length = 2 * width * height;
             break;
         case MFX_FOURCC_RGB4:
+        case MFX_FOURCC_BGR4:
             length = 4 * width * height;
             break;
         case MFX_FOURCC_P010:
@@ -496,6 +497,9 @@ mfxStatus CSmplYUVReader::LoadNextFrame(mfxFrameSurface1* pSurface,
 
         case MFX_FOURCC_RGB4:
             pData->B = buf_read;
+            break;
+        case MFX_FOURCC_BGR4:
+            pData->R = buf_read;
             break;
         default:
             break;
@@ -1126,6 +1130,7 @@ mfxStatus GetChromaSize(const mfxFrameInfo& pInfo, mfxU32& ChromaW, mfxU32& Chro
         }
 
         case MFX_FOURCC_RGB4:
+        case MFX_FOURCC_BGR4:
         case MFX_FOURCC_AYUV:
         case MFX_FOURCC_YUY2:
         case MFX_FOURCC_NV16:
@@ -1286,6 +1291,7 @@ mfxStatus CSmplYUVWriter::WriteNextFrame(mfxFrameSurface1* pSurface) {
             break;
         }
         case MFX_FOURCC_RGB4:
+        case MFX_FOURCC_BGR4:
         case MFX_FOURCC_AYUV:
         case MFX_FOURCC_A2RGB10:
         case MFX_FOURCC_YUY2:
@@ -1416,6 +1422,7 @@ mfxStatus CSmplYUVWriter::WriteNextFrame(mfxFrameSurface1* pSurface) {
         }
 
         case MFX_FOURCC_RGB4:
+        case MFX_FOURCC_BGR4:
         case MFX_FOURCC_AYUV:
         case MFX_FOURCC_YUY2:
         case MFX_FOURCC_A2RGB10: {

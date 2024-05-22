@@ -451,6 +451,14 @@ void CParametersDumper::SerializeExtensionBuffer(std::ostream& sstr,
             SERIALIZE_INFO(prefix, reserved);
             SERIALIZE_INFO_ARRAY(prefix, reserved2);
         } break;
+#ifdef ONEVPL_EXPERIMENTAL
+        case MFX_EXTBUFF_VPP_AI_FRAME_INTERPOLATION: {
+            mfxExtVPPAIFrameInterpolation& info = *(mfxExtVPPAIFrameInterpolation*)pExtBuffer;
+            SERIALIZE_INFO(prefix, FIMode);
+            SERIALIZE_INFO_ARRAY(prefix, reserved1);
+            SERIALIZE_INFO_ARRAY(prefix, reserved2);
+        } break;
+#endif
         case MFX_EXTBUFF_VPP_IMAGE_STABILIZATION: {
             mfxExtVPPImageStab& info = *(mfxExtVPPImageStab*)pExtBuffer;
             SERIALIZE_INFO(prefix, Mode);

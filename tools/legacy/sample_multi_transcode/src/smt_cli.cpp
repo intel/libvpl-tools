@@ -671,6 +671,8 @@ void PrintHelp() {
     HELP_LINE("");
     HELP_LINE("  -FRC::INTERP  Enables FRC filter with Frame Interpolation algorithm");
     HELP_LINE("");
+    HELP_LINE("  -FRC::AI_INTERP  Enables AI Frame Interpolation algorithm");
+    HELP_LINE("");
     HELP_LINE("  -scaling_mode <mode>");
     HELP_LINE("                Specifies scaling mode (lowpower/quality/EU)");
     HELP_LINE("");
@@ -891,6 +893,8 @@ void PrintHelp() {
     HELP_LINE("Examples:");
     HELP_LINE("  sample_multi_transcode -i::mpeg2 in.mpeg2 -o::h264 out.h264");
     HELP_LINE("  sample_multi_transcode -i::mvc in.mvc -o::mvc out.mvc -w 320 -h 240");
+    HELP_LINE(
+        "  sample_multi_transcode -i::h264 in_30fps.h264 -FRC::AI_INTERP -f 60 -o::h264 out_60fps.h264");
     std::cout.flush();
 }
 
@@ -2210,6 +2214,12 @@ mfxStatus ParseVPPCmdLine(char* argv[],
         params->FRCAlgorithm = MFX_FRCALGM_FRAME_INTERPOLATION;
         return MFX_ERR_NONE;
     }
+#ifdef ONEVPL_EXPERIMENTAL
+    else if (msdk_match(argv[index], "-FRC::AI_INTERP")) {
+        params->FRCAlgorithm = MFX_FRCALGM_AI_FRAME_INTERPOLATION;
+        return MFX_ERR_NONE;
+    }
+#endif
     else if (msdk_match(argv[index], "-deinterlace")) {
         params->bEnableDeinterlacing = true;
         params->DeinterlacingMode    = 0;

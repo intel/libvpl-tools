@@ -75,6 +75,8 @@ static const char* FourCC2Str(mfxU32 FourCC) {
             return "RGB3";
         case MFX_FOURCC_RGB4:
             return "RGB4";
+        case MFX_FOURCC_BGR4:
+            return "BGR4";
 #if !(defined(_WIN32) || defined(_WIN64))
         case MFX_FOURCC_RGBP:
             return "RGBP";
@@ -1342,6 +1344,21 @@ mfxStatus CRawVideoReader::LoadNextFrame(mfxFrameData* pData, mfxFrameInfo* pInf
             IOSTREAM_MSDK_CHECK_NOT_EQUAL(nBytesRead, 4 * w, MFX_ERR_MORE_DATA);
         }
     }
+    else if (pInfo->FourCC == MFX_FOURCC_BGR4) {
+        MSDK_CHECK_POINTER(pData->R, MFX_ERR_NOT_INITIALIZED);
+        MSDK_CHECK_POINTER(pData->G, MFX_ERR_NOT_INITIALIZED);
+        MSDK_CHECK_POINTER(pData->B, MFX_ERR_NOT_INITIALIZED);
+        // there is issue with A channel in case of d3d, so A-ch is ignored
+        //MSDK_CHECK_POINTER(pData->A, MFX_ERR_NOT_INITIALIZED);
+
+        ptr = std::min(std::min(pData->R, pData->G), pData->B);
+        ptr = ptr + pInfo->CropX + pInfo->CropY * pitch;
+
+        for (i = 0; i < h; i++) {
+            nBytesRead = (mfxU32)fread(ptr + i * pitch, 1, 4 * w, m_fSrc);
+            IOSTREAM_MSDK_CHECK_NOT_EQUAL(nBytesRead, 4 * w, MFX_ERR_MORE_DATA);
+        }
+    }
     else if (pInfo->FourCC == MFX_FOURCC_YUY2) {
         ptr = pData->Y + pInfo->CropX + pInfo->CropY * pitch;
 
@@ -1467,6 +1484,11 @@ mfxStatus CRawVideoReader::LoadNextFrame(mfxFrameSurface1* pSurface,
             // read luminance plane (Y)
             //pitch    = pData->Pitch;
             pData->B = buf_read;
+            break;
+        case MFX_FOURCC_BGR4:
+            // read luminance plane (Y)
+            //pitch    = pData->Pitch;
+            pData->R = buf_read;
             break;
         default:
             break;
@@ -2064,7 +2086,8 @@ mfxStatus CRawVideoWriter::WriteFrame(mfxFrameData* pData, mfxFrameInfo* pInfo) 
                                  MFX_ERR_UNDEFINED_BEHAVIOR);
         }
     }
-    else if (pInfo->FourCC == MFX_FOURCC_RGB4 || pInfo->FourCC == MFX_FOURCC_A2RGB10) {
+    else if (pInfo->FourCC == MFX_FOURCC_RGB4 || pInfo->FourCC == MFX_FOURCC_A2RGB10 ||
+             pInfo->FourCC == MFX_FOURCC_BGR4) {
         MSDK_CHECK_POINTER(pData->R, MFX_ERR_NOT_INITIALIZED);
         MSDK_CHECK_POINTER(pData->G, MFX_ERR_NOT_INITIALIZED);
         MSDK_CHECK_POINTER(pData->B, MFX_ERR_NOT_INITIALIZED);

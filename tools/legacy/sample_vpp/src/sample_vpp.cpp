@@ -270,6 +270,7 @@ mfxU32 GetSurfaceSize(mfxU32 FourCC, mfxU32 width, mfxU32 height) {
             nbytes *= 2;
             break;
         case MFX_FOURCC_RGB4:
+        case MFX_FOURCC_BGR4:
             nbytes = width * height * 4;
         default:
             break;

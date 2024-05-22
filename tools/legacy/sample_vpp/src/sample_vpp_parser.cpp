@@ -403,6 +403,9 @@ mfxU32 Str2FourCC(char* strInput) {
     else if (msdk_match_i(strInput, "rgb4")) {
         fourcc = MFX_FOURCC_RGB4;
     }
+    else if (msdk_match_i(strInput, "bgr4")) {
+        fourcc = MFX_FOURCC_BGR4;
+    }
 #if !(defined(_WIN32) || defined(_WIN64))
     else if (msdk_match_i(strInput, "rgbp")) {
         fourcc = MFX_FOURCC_RGBP;
@@ -802,6 +805,12 @@ mfxStatus vppParseResetPar(char* strInput[],
                 pParams->frcParam[paramID].mode      = VPP_FILTER_ENABLED_CONFIGURED;
                 pParams->frcParam[paramID].algorithm = MFX_FRCALGM_FRAME_INTERPOLATION;
             }
+#ifdef ONEVPL_EXPERIMENTAL
+            else if (msdk_match(strInput[i], "-frc:ai_interp")) {
+                pParams->frcParam[paramID].mode      = VPP_FILTER_ENABLED_CONFIGURED;
+                pParams->frcParam[paramID].algorithm = MFX_FRCALGM_AI_FRAME_INTERPOLATION;
+            }
+#endif
             //---------------------------------------------
             else if (msdk_match(strInput[i], "-pa_hue")) {
                 pParams->procampParam[paramID].mode = VPP_FILTER_ENABLED_CONFIGURED;
@@ -1387,6 +1396,12 @@ mfxStatus vppParseInputString(char* strInput[],
                 pParams->frcParam[0].mode      = VPP_FILTER_ENABLED_CONFIGURED;
                 pParams->frcParam[0].algorithm = MFX_FRCALGM_FRAME_INTERPOLATION;
             }
+#ifdef ONEVPL_EXPERIMENTAL
+            else if (msdk_match(strInput[i], "-frc:ai_interp")) {
+                pParams->frcParam[0].mode      = VPP_FILTER_ENABLED_CONFIGURED;
+                pParams->frcParam[0].algorithm = MFX_FRCALGM_AI_FRAME_INTERPOLATION;
+            }
+#endif
             //---------------------------------------------
             else if (msdk_match(strInput[i], "-pa_hue")) {
                 pParams->procampParam[0].mode = VPP_FILTER_ENABLED_CONFIGURED;

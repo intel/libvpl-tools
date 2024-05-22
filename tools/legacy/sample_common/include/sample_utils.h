@@ -377,6 +377,12 @@ template <>
 struct mfx_ext_buffer_id<mfxExtVPPFrameRateConversion> {
     enum { id = MFX_EXTBUFF_VPP_FRAME_RATE_CONVERSION };
 };
+#ifdef ONEVPL_EXPERIMENTAL
+template <>
+struct mfx_ext_buffer_id<mfxExtVPPAIFrameInterpolation> {
+    enum { id = MFX_EXTBUFF_VPP_AI_FRAME_INTERPOLATION };
+};
+#endif
 template <>
 struct mfx_ext_buffer_id<mfxExtHEVCTiles> {
     enum { id = MFX_EXTBUFF_HEVC_TILES };

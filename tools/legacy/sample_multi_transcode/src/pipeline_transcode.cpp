@@ -3561,12 +3561,21 @@ mfxStatus CTranscodingPipeline::InitVppMfxParams(MfxVideoParamsWrapper& par,
         auto detail          = par.AddExtBuffer<mfxExtVPPDetail>();
         detail->DetailFactor = (mfxU16)pInParams->DetailLevel;
     }
-
+#ifdef ONEVPL_EXPERIMENTAL
+    if (pInParams->FRCAlgorithm && pInParams->FRCAlgorithm != MFX_FRCALGM_AI_FRAME_INTERPOLATION) {
+#else
     if (pInParams->FRCAlgorithm) {
+#endif
         auto frc       = par.AddExtBuffer<mfxExtVPPFrameRateConversion>();
         frc->Algorithm = pInParams->FRCAlgorithm;
     }
-
+#ifdef ONEVPL_EXPERIMENTAL
+    else if (pInParams->FRCAlgorithm == MFX_FRCALGM_AI_FRAME_INTERPOLATION) {
+        auto frc       = par.AddExtBuffer<mfxExtVPPAIFrameInterpolation>();
+        frc->FIMode    = MFX_AI_FRAME_INTERPOLATION_MODE_DEFAULT;
+        frc->EnableScd = 1;
+    }
+#endif
     if (pInParams->bEnableDeinterlacing && pInParams->DeinterlacingMode) {
         auto di  = par.AddExtBuffer<mfxExtVPPDeinterlacing>();
         di->Mode = pInParams->DeinterlacingMode;
