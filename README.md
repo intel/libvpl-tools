@@ -1,8 +1,8 @@
 # Intel® Video Processing Library (Intel® VPL) Tools
 
 Intel® Video Processing Library (Intel® VPL) tools provide access to hardware
-accelerated video decode, encode, and frame processing capabilities on Intel®
-GPUs from the command line.
+accelerated video decode, encode, and processing capabilities on Intel® GPUs
+from the command line.
 
 The tools require the [Intel® VPL base library](https://github.com/intel/libvpl)
 and a runtime library installed. Current runtime implementations:
