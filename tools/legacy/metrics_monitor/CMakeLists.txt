@@ -97,8 +97,14 @@ if(PKG_LIBDRM_FOUND)
   target_compile_definitions(${METRICS_TOOL} PRIVATE LIBVA_DRM_SUPPORT
                                                      LIBVA_SUPPORT)
 
+  set_target_properties(${METRICS_LIB} PROPERTIES VERSION 1.0.0)
+
   install(TARGETS ${METRICS_TOOL} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
                                           COMPONENT ${VPL_COMPONENT_TOOLS})
+
+  install(
+    FILES "include/cttmetrics.h" "include/cttmetrics_utils.h"
+    DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/cttmetrics")
 
   # test_monitor
   if(BUILD_TESTS)
