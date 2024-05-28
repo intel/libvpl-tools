@@ -160,7 +160,6 @@ jobs:
       matrix:
         gpu:
           - gen12.5
-          - gen9.5
         config:
           - release
         os:
@@ -185,7 +184,6 @@ jobs:
       matrix:
         gpu:
           - gen12.5
-          - gen9.5
         distro:
           - family: ubuntu
             version: 22.04
