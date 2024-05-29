@@ -111,6 +111,7 @@ jobs:
       os: ${{ matrix.os }}
       output_prefix: tools-
       dependent_artifact: ${{ matrix.os }}-release-build
+      extra_opts: --report
 
   linux-tools-build:
     if: true
