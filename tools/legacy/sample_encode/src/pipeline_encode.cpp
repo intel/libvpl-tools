@@ -846,9 +846,15 @@ mfxStatus CEncodingPipeline::CheckHyperEncodeParams(mfxHyperMode hyperMode) {
 #endif
 
 mfxU32 CEncodingPipeline::FileFourCC2EncFourCC(mfxU32 fcc) {
-    // File reader automatically converts I420 and YV12 to NV12
-    if (fcc == MFX_FOURCC_I420 || fcc == MFX_FOURCC_YV12)
+    // File reader automatically converts I420, YV12 to NV12
+    // On windows, YUV400 is automatically converts to NV12.
+    if (fcc == MFX_FOURCC_I420 || fcc == MFX_FOURCC_YV12
+#if (defined(_WIN64) || defined(_WIN32))
+        || fcc == MFX_FOURCC_YUV400
+#endif
+    ) {
         return MFX_FOURCC_NV12;
+    }
     else
         return fcc;
 }
@@ -1652,11 +1658,21 @@ mfxStatus CEncodingPipeline::Init(sInputParams* pParams) {
 
     // FileReader can convert yv12->nv12 without vpp, when hw impl
     if (pParams->bUseHWLib) {
-        m_InputFourCC = (pParams->FileInputFourCC == MFX_FOURCC_I420) ? MFX_FOURCC_NV12
-                                                                      : pParams->FileInputFourCC;
+        m_InputFourCC = ((pParams->FileInputFourCC == MFX_FOURCC_I420)
+#if (defined(_WIN64) || defined(_WIN32))
+                         || (pParams->FileInputFourCC == MFX_FOURCC_YUV400)
+#endif
+                             )
+                            ? MFX_FOURCC_NV12
+                            : pParams->FileInputFourCC;
 
-        pParams->EncodeFourCC =
-            (pParams->EncodeFourCC == MFX_FOURCC_I420) ? MFX_FOURCC_NV12 : pParams->EncodeFourCC;
+        pParams->EncodeFourCC = ((pParams->EncodeFourCC == MFX_FOURCC_I420)
+#if (defined(_WIN64) || defined(_WIN32))
+                                 || (pParams->EncodeFourCC == MFX_FOURCC_YUV400)
+#endif
+                                     )
+                                    ? MFX_FOURCC_NV12
+                                    : pParams->EncodeFourCC;
     }
     else {
         m_InputFourCC = pParams->FileInputFourCC;
