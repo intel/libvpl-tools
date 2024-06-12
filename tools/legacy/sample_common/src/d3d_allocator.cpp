@@ -39,8 +39,6 @@ D3DFORMAT ConvertMfxFourccToD3dFormat(mfxU32 fourcc) {
     switch (fourcc) {
         case MFX_FOURCC_NV12:
             return D3DFMT_NV12;
-        case MFX_FOURCC_YUV400:
-            return D3DFMT_L8;
         case MFX_FOURCC_YV12:
             return D3DFMT_YV12;
         case MFX_FOURCC_NV16:
@@ -146,7 +144,7 @@ mfxStatus D3DFrameAllocator::LockFrame(mfxMemId mid, mfxFrameData* ptr) {
         desc.Format != D3DFMT_A2R10G10B10 && desc.Format != D3DFMT_A16B16G16R16 &&
         desc.Format != D3DFMT_IMC3 && desc.Format != D3DFMT_AYUV && desc.Format != D3DFMT_Y210 &&
         desc.Format != D3DFMT_P016 && desc.Format != D3DFMT_Y216 && desc.Format != D3DFMT_Y410 &&
-        desc.Format != D3DFMT_Y416 && desc.Format != D3DFMT_L8)
+        desc.Format != D3DFMT_Y416)
         return MFX_ERR_LOCK_MEMORY;
 
     D3DLOCKED_RECT locked;
@@ -197,7 +195,6 @@ mfxStatus D3DFrameAllocator::LockFrame(mfxMemId mid, mfxFrameData* ptr) {
             ptr->R     = ptr->B + 2;
             ptr->A     = ptr->B + 3;
             break;
-        case D3DFMT_L8:
         case D3DFMT_P8:
             ptr->Pitch = (mfxU16)locked.Pitch;
             ptr->Y     = (mfxU8*)locked.pBits;
