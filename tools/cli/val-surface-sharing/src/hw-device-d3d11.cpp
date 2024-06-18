@@ -80,10 +80,10 @@ ID3D11Texture2D *DevCtxD3D11::GetVideoTextureFromFrameSurface(mfxFrameSurface1 *
     return reinterpret_cast<ID3D11Texture2D *>(frame_handle);
 }
 
-ID3D11Texture2D *DevCtxD3D11::CreateSurfaceToShare(FrameInfo *pframeInfo,
+CComPtr<ID3D11Texture2D> DevCtxD3D11::CreateSurfaceToShare(FrameInfo *pframeInfo,
                                                    mfxU8 *data,
                                                    bool brender) {
-    ID3D11Texture2D *pTex2D;
+    CComPtr<ID3D11Texture2D> pTex2D;
 
     UINT bindFlags;
     D3D11_TEXTURE2D_DESC desc = {};

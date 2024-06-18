@@ -10,6 +10,9 @@ GPUs from the command line.
 
 ## [Unreleased]
 
+### Fixed
+- D3D11 texture not being released in val-surface-sharing test tool
+
 ## [1.0.0] - 2024-04-26
 
 ### Added

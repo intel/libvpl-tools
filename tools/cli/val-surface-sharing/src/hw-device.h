@@ -37,7 +37,7 @@ public:
     mfxStatus InitDevice(mfxU32 nAdapterNum, mfxHandleType *pHandleType, mfxHDL *pHandle);
     ID3D11Device *GetVideoDeviceFromFrameSurface(mfxFrameSurface1 *pSrf);
     ID3D11Texture2D *GetVideoTextureFromFrameSurface(mfxFrameSurface1 *pSrf);
-    ID3D11Texture2D *CreateSurfaceToShare(FrameInfo *pframeInfo, mfxU8 *data, bool brender = false);
+    CComPtr<ID3D11Texture2D> CreateSurfaceToShare(FrameInfo *pframeInfo, mfxU8 *data, bool brender = false);
 
     __inline ID3D11Device *GetDeviceHandle(void) {
         return pD3D11Device;
