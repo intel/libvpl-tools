@@ -130,6 +130,8 @@ private:
                            mfxExtContentLightLevelInfo* contentLight,
                            bool enableHDR);
 
+    uint32_t convertVaFourccToDrmFormat(uint32_t vaFourcc);
+
     const MfxLoader::DRM_Proxy m_drmlib;
     const MfxLoader::DrmIntel_Proxy m_drmintellib;
 

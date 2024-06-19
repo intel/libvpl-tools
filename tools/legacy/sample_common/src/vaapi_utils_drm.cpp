@@ -14,6 +14,7 @@
     #include <stdexcept>
 
     #include <drm_fourcc.h>
+    #include <xf86drm.h>
     #include "i915_drm.h"
     #include "vaapi_utils_drm.h"
 
@@ -211,7 +212,6 @@ drmRenderer::drmRenderer(int fd, mfxI32 monitorType)
           m_crtc(),
           m_connectorProperties(),
           m_crtcProperties(),
-          m_bufmgr(NULL),
           m_overlay_wrn(true),
           m_bSentHDR(false),
           m_bHdrSupport(false),
@@ -257,11 +257,6 @@ drmRenderer::~drmRenderer() {
     m_drmlib.drmModeFreeCrtc(m_crtc);
     m_drmlib.drmModeFreeObjectProperties(m_connectorProperties);
     m_drmlib.drmModeFreeObjectProperties(m_crtcProperties);
-
-    if (m_bufmgr) {
-        m_drmintellib.drm_intel_bufmgr_destroy(m_bufmgr);
-        m_bufmgr = NULL;
-    }
 }
 
 drmModeObjectPropertiesPtr drmRenderer::getProperties(int fd, int objectId, int32_t objectTypeId) {
@@ -752,36 +747,75 @@ int drmRenderer::drmSendHdrMetaData(mfxExtMasteringDisplayColourVolume* displayC
     return 0;
 }
 
+uint32_t drmRenderer::convertVaFourccToDrmFormat(uint32_t vaFourcc) {
+    switch (vaFourcc) {
+        case VA_FOURCC_ARGB:
+            return DRM_FORMAT_ARGB8888;
+        case VA_FOURCC_NV12:
+            return DRM_FORMAT_NV12;
+    #if defined(DRM_LINUX_P010_SUPPORT)
+        case VA_FOURCC_P010:
+            return DRM_FORMAT_P010;
+    #endif
+
+        default:
+            printf("unsupported fourcc\n");
+            return 0;
+    }
+}
+
 void* drmRenderer::acquire(mfxMemId mid) {
-    vaapiMemId* vmid  = (vaapiMemId*)mid;
+    vaapiMemId* vmid = (vaapiMemId*)mid;
+
     uint32_t fbhandle = 0;
+    uint32_t handles[4], pitches[4], offsets[4], flags = 0;
+    uint64_t modifiers[4];
+    int ret;
+
+    MSDK_ZERO_MEMORY(handles);
+    MSDK_ZERO_MEMORY(pitches);
+    MSDK_ZERO_MEMORY(offsets);
+    MSDK_ZERO_MEMORY(modifiers);
 
     if (vmid->m_buffer_info.mem_type == VA_SURFACE_ATTRIB_MEM_TYPE_DRM_PRIME) {
-        if (!m_bufmgr) {
-            m_bufmgr = m_drmintellib.drm_intel_bufmgr_gem_init(m_fd, 4096);
-            if (!m_bufmgr)
-                return NULL;
-        }
+        uint32_t bo_handle;
 
-        drm_intel_bo* bo =
-            m_drmintellib.drm_intel_bo_gem_create_from_prime(m_bufmgr,
-                                                             (int)vmid->m_buffer_info.handle,
-                                                             vmid->m_buffer_info.mem_size);
-        if (!bo)
+        ret = m_drmintellib.drmPrimeFDToHandle(m_fd, (int)vmid->m_buffer_info.handle, &bo_handle);
+        if (ret)
             return NULL;
 
-        int ret = m_drmlib.drmModeAddFB(m_fd,
-                                        vmid->m_image.width,
-                                        vmid->m_image.height,
-                                        24,
-                                        32,
-                                        vmid->m_image.pitches[0],
-                                        bo->handle,
-                                        &fbhandle);
-        if (ret) {
-            return NULL;
+        for (uint32_t i = 0; i < vmid->m_image.num_planes; i++) {
+            pitches[i] = vmid->m_image.pitches[i];
+            offsets[i] = vmid->m_image.offsets[i];
+            handles[i] = bo_handle;
+
+            if (VA_FOURCC_NV12 == vmid->m_fourcc
+    #if defined(DRM_LINUX_P010_SUPPORT)
+                || VA_FOURCC_P010 == vmid->m_fourcc
+    #endif
+            ) {
+                flags        = DRM_MODE_FB_MODIFIERS;
+                modifiers[i] = I915_FORMAT_MOD_Y_TILED;
+                if (m_bRequiredTiled4) {
+    #if defined(DRM_LINUX_MODIFIER_TILED4_SUPPORT)
+                    modifiers[i] = I915_FORMAT_MOD_4_TILED;
+    #endif
+                }
+            }
         }
-        m_drmintellib.drm_intel_bo_unreference(bo);
+
+        ret = m_drmlib.drmModeAddFB2WithModifiers(m_fd,
+                                                  vmid->m_image.width,
+                                                  vmid->m_image.height,
+                                                  convertVaFourccToDrmFormat(vmid->m_fourcc),
+                                                  handles,
+                                                  pitches,
+                                                  offsets,
+                                                  modifiers,
+                                                  &fbhandle,
+                                                  flags);
+        if (ret)
+            return NULL;
     }
     else if (vmid->m_buffer_info.mem_type == VA_SURFACE_ATTRIB_MEM_TYPE_KERNEL_DRM) {
         struct drm_gem_open flink_open;
@@ -793,62 +827,42 @@ void* drmRenderer::acquire(mfxMemId mid) {
         if (ret)
             return NULL;
 
-        uint32_t handles[4], pitches[4], offsets[4], pixel_format, flags = 0;
-        uint64_t modifiers[4];
+        for (uint32_t i = 0; i < vmid->m_image.num_planes; i++) {
+            pitches[i] = vmid->m_image.pitches[i];
+            offsets[i] = vmid->m_image.offsets[i];
+            handles[i] = flink_open.handle;
 
-        memset(&handles, 0, sizeof(handles));
-        memset(&pitches, 0, sizeof(pitches));
-        memset(&offsets, 0, sizeof(offsets));
-        memset(&modifiers, 0, sizeof(modifiers));
-
-        handles[0] = flink_open.handle;
-        pitches[0] = vmid->m_image.pitches[0];
-        offsets[0] = vmid->m_image.offsets[0];
-
-        if (VA_FOURCC_NV12 == vmid->m_fourcc
+            if (VA_FOURCC_NV12 == vmid->m_fourcc
     #if defined(DRM_LINUX_P010_SUPPORT)
-            || VA_FOURCC_P010 == vmid->m_fourcc
+                || VA_FOURCC_P010 == vmid->m_fourcc
     #endif
-        ) {
-            pixel_format = DRM_FORMAT_NV12;
-    #if defined(DRM_LINUX_P010_SUPPORT)
-            if (VA_FOURCC_P010 == vmid->m_fourcc)
-                pixel_format = DRM_FORMAT_P010;
-    #endif
-            handles[1]   = flink_open.handle;
-            pitches[1]   = vmid->m_image.pitches[1];
-            offsets[1]   = vmid->m_image.offsets[1];
-            modifiers[0] = modifiers[1] = I915_FORMAT_MOD_Y_TILED;
-            flags                       = DRM_MODE_FB_MODIFIERS;
-
-            if (m_bRequiredTiled4) {
+            ) {
+                flags        = DRM_MODE_FB_MODIFIERS;
+                modifiers[i] = I915_FORMAT_MOD_Y_TILED;
+                if (m_bRequiredTiled4) {
     #if defined(DRM_LINUX_MODIFIER_TILED4_SUPPORT)
-                modifiers[0] = modifiers[1] = I915_FORMAT_MOD_4_TILED;
+                    modifiers[i] = I915_FORMAT_MOD_4_TILED;
     #endif
-            }
-            else {
-                modifiers[0] = modifiers[1] = I915_FORMAT_MOD_Y_TILED;
-
-                struct drm_i915_gem_set_tiling set_tiling;
-                memset(&set_tiling, 0, sizeof(set_tiling));
-                set_tiling.handle      = flink_open.handle;
-                set_tiling.tiling_mode = I915_TILING_Y;
-                set_tiling.stride      = vmid->m_image.pitches[0];
-                ret = m_drmlib.drmIoctl(m_fd, DRM_IOCTL_I915_GEM_SET_TILING, &set_tiling);
-                if (ret) {
-                    printf("DRM_IOCTL_I915_GEM_SET_TILING Failed ret = %d\n", ret);
-                    return NULL;
+                }
+                else {
+                    struct drm_i915_gem_set_tiling set_tiling;
+                    memset(&set_tiling, 0, sizeof(set_tiling));
+                    set_tiling.handle      = flink_open.handle;
+                    set_tiling.tiling_mode = I915_TILING_Y;
+                    set_tiling.stride      = vmid->m_image.pitches[0];
+                    ret = m_drmlib.drmIoctl(m_fd, DRM_IOCTL_I915_GEM_SET_TILING, &set_tiling);
+                    if (ret) {
+                        printf("DRM_IOCTL_I915_GEM_SET_TILING Failed ret = %d\n", ret);
+                        return NULL;
+                    }
                 }
             }
-        }
-        else {
-            pixel_format = DRM_FORMAT_XRGB8888;
         }
 
         ret = m_drmlib.drmModeAddFB2WithModifiers(m_fd,
                                                   vmid->m_image.width,
                                                   vmid->m_image.height,
-                                                  pixel_format,
+                                                  convertVaFourccToDrmFormat(vmid->m_fourcc),
                                                   handles,
                                                   pitches,
                                                   offsets,
@@ -905,6 +919,7 @@ mfxStatus drmRenderer::render(mfxFrameSurface1* pSurface) {
     if (!setMaster()) {
         return MFX_ERR_UNKNOWN;
     }
+
     if ((m_mode.hdisplay == memid->m_image.width) && (m_mode.vdisplay == memid->m_image.height)) {
         // surface in the framebuffer exactly matches crtc scanout port, so we
         // can scanout from this framebuffer for the whole crtc

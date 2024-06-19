@@ -136,7 +136,8 @@ DrmIntel_Proxy::DrmIntel_Proxy()
           SIMPLE_LOADER_FUNCTION(drm_intel_bo_gem_create_from_prime),
           SIMPLE_LOADER_FUNCTION(drm_intel_bo_unreference),
           SIMPLE_LOADER_FUNCTION(drm_intel_bufmgr_gem_init),
-          SIMPLE_LOADER_FUNCTION(drm_intel_bufmgr_destroy)
+          SIMPLE_LOADER_FUNCTION(drm_intel_bufmgr_destroy),
+          SIMPLE_LOADER_FUNCTION(drmPrimeFDToHandle)
         #if defined(X11_DRI3_SUPPORT)
           ,
           SIMPLE_LOADER_FUNCTION(drm_intel_bo_gem_export_to_prime)
