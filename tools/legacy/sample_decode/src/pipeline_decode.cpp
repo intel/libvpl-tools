@@ -1437,7 +1437,7 @@ mfxStatus CDecodingPipeline::CreateAllocator() {
             if (m_libvaBackend == MFX_LIBVA_DRM_MODESET) {
     #if defined(LIBVA_DRM_SUPPORT)
                 CVAAPIDeviceDRM* drmdev           = dynamic_cast<CVAAPIDeviceDRM*>(m_hwdev);
-                p_vaapiAllocParams->m_export_mode = vaapiAllocatorParams::CUSTOM_FLINK;
+                p_vaapiAllocParams->m_export_mode = vaapiAllocatorParams::PRIME;
                 p_vaapiAllocParams->m_exporter =
                     dynamic_cast<vaapiAllocatorParams::Exporter*>(drmdev->getRenderer());
     #endif

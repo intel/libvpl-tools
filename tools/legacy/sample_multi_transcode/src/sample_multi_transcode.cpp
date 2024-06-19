@@ -374,7 +374,7 @@ mfxStatus Launcher::Init(int argc, char* argv[]) {
     #if defined(LIBVA_DRM_SUPPORT)
                     if (params.libvaBackend == MFX_LIBVA_DRM_MODESET) {
                         CVAAPIDeviceDRM* drmdev     = dynamic_cast<CVAAPIDeviceDRM*>(hwdev.get());
-                        pVAAPIParams->m_export_mode = vaapiAllocatorParams::CUSTOM_FLINK;
+                        pVAAPIParams->m_export_mode = vaapiAllocatorParams::PRIME;
                         pVAAPIParams->m_exporter =
                             dynamic_cast<vaapiAllocatorParams::Exporter*>(drmdev->getRenderer());
                     }
