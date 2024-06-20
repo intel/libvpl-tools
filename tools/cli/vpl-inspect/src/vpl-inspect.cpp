@@ -137,6 +137,7 @@ const char *_print_SurfaceType(mfxSurfaceType type) {
         STRING_OPTION(MFX_SURFACE_TYPE_D3D12_TEX2D);
         STRING_OPTION(MFX_SURFACE_TYPE_VAAPI);
         STRING_OPTION(MFX_SURFACE_TYPE_OPENCL_IMG2D);
+        STRING_OPTION(MFX_SURFACE_TYPE_VULKAN_IMG2D);
 
         default:
             break;
