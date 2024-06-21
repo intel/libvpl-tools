@@ -81,8 +81,8 @@ ID3D11Texture2D *DevCtxD3D11::GetVideoTextureFromFrameSurface(mfxFrameSurface1 *
 }
 
 CComPtr<ID3D11Texture2D> DevCtxD3D11::CreateSurfaceToShare(FrameInfo *pframeInfo,
-                                                   mfxU8 *data,
-                                                   bool brender) {
+                                                           mfxU8 *data,
+                                                           bool brender) {
     CComPtr<ID3D11Texture2D> pTex2D;
 
     UINT bindFlags;
