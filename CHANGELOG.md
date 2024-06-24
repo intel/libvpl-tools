@@ -8,9 +8,14 @@ Intel® Video Processing Library (Intel® VPL) tools provide access to hardware
 accelerated video decode, encode, and frame processing capabilities on Intel®
 GPUs from the command line.
 
-## [Unreleased]
+## [1.1.0] - 2024-06-28
+
+### Added
+- `MFX_SURFACE_TYPE_VULKAN_IMG2D` to vpl-inspect
+- YUV400 JPEG Enc for Linux VAAPI
 
 ### Fixed
+- va-attrib for vaapiallocator
 - D3D11 texture not being released in val-surface-sharing test tool
 
 ## [1.0.0] - 2024-04-26
