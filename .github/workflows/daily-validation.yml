@@ -358,7 +358,7 @@ jobs:
       dependent_artifact: ${{ matrix.os }}-experimental-off-build
 
   summary:
-    if: true
+    if: "always()"
     needs:
       - hadolint
       - trivy
