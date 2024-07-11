@@ -29,7 +29,7 @@ void PrintHelp(char* strAppName, const char* strErrorMessage) {
     printf("   or: %s <codecid> [<options>] -i InputBitstream -o OutputYUVFile\n", strAppName);
     printf("\n");
     printf("Supported codecs (<codecid>):\n");
-    printf("   <codecid>=h264|mpeg2|vc1|mvc|jpeg|vp9|av1 - built-in Media SDK codecs\n");
+    printf("   <codecid>=h264|mpeg2|vc1|mvc|jpeg|vp9|av1|vvc - built-in Media SDK codecs\n");
     printf(
         "   <codecid>=h265|vp9|capture            - in-box Media SDK plugins (may require separate downloading and installation)\n");
     printf("\n");
@@ -798,7 +798,8 @@ mfxStatus ParseInputString(char* strInput[], mfxU32 nArgNum, sInputParams* pPara
     if (MFX_CODEC_MPEG2 != pParams->videoType && MFX_CODEC_AVC != pParams->videoType &&
         MFX_CODEC_HEVC != pParams->videoType && MFX_CODEC_VC1 != pParams->videoType &&
         MFX_CODEC_JPEG != pParams->videoType && MFX_CODEC_VP8 != pParams->videoType &&
-        MFX_CODEC_VP9 != pParams->videoType && MFX_CODEC_AV1 != pParams->videoType) {
+        MFX_CODEC_VP9 != pParams->videoType && MFX_CODEC_AV1 != pParams->videoType &&
+        MFX_CODEC_VVC != pParams->videoType) {
         PrintHelp(strInput[0], "Unknown codec");
         return MFX_ERR_UNSUPPORTED;
     }

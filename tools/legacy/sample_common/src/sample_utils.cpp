@@ -2442,6 +2442,7 @@ bool IsDecodeCodecSupported(mfxU32 codecFormat) {
         case MFX_CODEC_VP8:
         case MFX_CODEC_VP9:
         case MFX_CODEC_AV1:
+        case MFX_CODEC_VVC:
             break;
         default:
             return false;
@@ -2515,6 +2516,9 @@ mfxStatus StrFormatToCodecFormatFourCC(char* strInput, mfxU32& codecFormat) {
         }
         else if (msdk_match(strInput, "av1")) {
             codecFormat = MFX_CODEC_AV1;
+        }
+        else if (msdk_match(strInput, "vvc")) {
+            codecFormat = MFX_CODEC_VVC;
         }
         else if ((msdk_match(strInput, "raw"))) {
             codecFormat = MFX_CODEC_DUMP;

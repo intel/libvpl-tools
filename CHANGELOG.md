@@ -10,6 +10,9 @@ GPUs from the command line.
 
 ## [Unreleased]
 
+### Added
+- VVC decode support to sample_decode
+
 ## [1.1.0] - 2024-06-28
 
 ### Added
