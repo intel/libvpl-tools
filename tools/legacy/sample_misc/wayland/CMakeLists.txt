@@ -112,8 +112,10 @@ if(PKGConfig_LIBDRM_FOUND)
   target_link_libraries(${TARGET} PRIVATE sample_common wayland-client va drm
                                           drm_intel)
 
+  set_target_properties(${TARGET} PROPERTIES VERSION 1.0.0)
+
   install(TARGETS ${TARGET}
-          LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}/${PROJECT_NAME}"
+          LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
                   COMPONENT ${VPL_COMPONENT_TOOLS})
 else()
   message(
