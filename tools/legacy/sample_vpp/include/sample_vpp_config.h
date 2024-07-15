@@ -109,6 +109,12 @@ typedef struct {
 } sFrameRateConversionParam;
 
 typedef struct {
+    mfxU32 algorithm;
+    FilterConfig mode;
+
+} sSRParam;
+
+typedef struct {
     mfxU16 algorithm;
     mfxU16 tc_pattern;
     mfxU16 tc_pos;

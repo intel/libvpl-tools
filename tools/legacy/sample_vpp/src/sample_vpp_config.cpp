@@ -103,7 +103,12 @@ mfxStatus ConfigVideoEnhancementFilters(sInputParams* pParams,
         auto mirroringConfig  = pVppParam->AddExtBuffer<mfxExtVPPMirroring>();
         mirroringConfig->Type = pParams->mirroringParam[paramID].Type;
     }
-
+#ifdef ONEVPL_EXPERIMENTAL
+    if (VPP_FILTER_ENABLED_CONFIGURED == pParams->srParam[paramID].mode) {
+        auto srConfig    = pVppParam->AddExtBuffer<mfxExtVPPAISuperResolution>();
+        srConfig->SRMode = MFX_AI_SUPER_RESOLUTION_MODE_DEFAULT;
+    }
+#endif
     if (VPP_FILTER_ENABLED_CONFIGURED == pParams->colorfillParam[paramID].mode) {
         auto colorfillConfig = pVppParam->AddExtBuffer<mfxExtVPPColorFill>();
         colorfillConfig      = &pParams->colorfillParam[paramID];

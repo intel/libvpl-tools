@@ -455,6 +455,12 @@ template <>
 struct mfx_ext_buffer_id<mfxExtVPPScaling> {
     enum { id = MFX_EXTBUFF_VPP_SCALING };
 };
+#ifdef ONEVPL_EXPERIMENTAL
+template <>
+struct mfx_ext_buffer_id<mfxExtVPPAISuperResolution> {
+    enum { id = MFX_EXTBUFF_VPP_AI_SUPER_RESOLUTION };
+};
+#endif
 template <>
 struct mfx_ext_buffer_id<mfxExtColorConversion> {
     enum { id = MFX_EXTBUFF_VPP_COLOR_CONVERSION };

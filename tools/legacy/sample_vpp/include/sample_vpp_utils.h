@@ -133,6 +133,7 @@ typedef struct _filtersParam {
     sColorFillParam* pColorfillParam;
     sVideoSignalInfo* pVideoSignalInfoIn;
     sVideoSignalInfo* pVideoSignalInfoOut;
+    sSRParam* pSRParam;
 } sFiltersParam;
 
 struct sInputParams {
@@ -271,6 +272,8 @@ struct sInputParams {
     std::vector<sVideoSignalInfo> videoSignalInfoIn;
     std::vector<sVideoSignalInfo> videoSignalInfoOut;
 
+    std::vector<sSRParam> srParam;
+
     std::string m_vpp_cfg;
     std::string dump_file;
 
@@ -360,6 +363,7 @@ struct sInputParams {
               bIs3dLutVideoMem(false),
               videoSignalInfoIn(),
               videoSignalInfoOut(),
+              srParam(),
               m_vpp_cfg(),
               dump_file() {
         MSDK_ZERO_MEMORY(strSrcFile);

@@ -295,6 +295,7 @@ void vppPrintHelp(const char* strAppName, const char* strErrorMessage) {
     printf("   [-ssinr (id)]         - specify YUV nominal range for input surface.\n");
     printf("   [-dsinr (id)]         - specify YUV nominal range for output surface.\n\n");
     printf("   [-mirror (mode)]      - mirror image using specified mode.\n");
+    printf("   [-sr]                 - enable AI based super resolution.\n");
 
     printf("   [-n frames] - number of frames to VPP process\n\n");
 
@@ -1117,6 +1118,11 @@ mfxStatus vppParseInputString(char* strInput[],
 
                 i++;
                 msdk_opt_read(strInput[i], pParams->mirroringParam[0].Type);
+            }
+            else if (msdk_match(strInput[i], "-sr")) {
+                VAL_CHECK(1 + i == nArgNum);
+
+                pParams->srParam[0].mode = VPP_FILTER_ENABLED_CONFIGURED;
             }
             else if (msdk_match(strInput[i], "-sw")) {
                 VAL_CHECK(1 + i == nArgNum);
