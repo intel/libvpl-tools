@@ -316,6 +316,49 @@ jobs:
       distro_version: ${{ matrix.distro.version }}
       test_ref: ${{ needs.setup-variables.outputs.test_ref }}
 
+  experimental-off:
+    if: '! github.event.pull_request.draft'
+    needs: setup-variables
+    uses: ./.github/workflows/cmake.yml
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - windows
+          - linux
+    with:
+      os: ${{ matrix.os }}
+      build_type: release
+      artifact_name: ${{ matrix.os }}-experimental-off-build
+      run_tests: false
+      no_artifacts: false
+      configure_options: >-
+        -DBUILD_EXPERIMENTAL=OFF
+      repository: ${{ vars.DISP_REPO }}
+      ref: ${{ needs.setup-variables.outputs.lib_ref }}
+    secrets:
+      token: ${{ secrets.DISP_REPO_TOKEN }}
+
+  tools-experimental-off:
+    if: '! github.event.pull_request.draft'
+    needs: [experimental-off]
+    uses: ./.github/workflows/cmake.yml
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - windows
+          - linux
+    with:
+      os: ${{ matrix.os }}
+      build_type: release
+      artifact_name: ${{ matrix.os }}-tools-experimental-off-build
+      run_tests: false
+      no_artifacts: true
+      configure_options: >-
+        -DBUILD_EXPERIMENTAL=OFF
+      dependent_artifact: ${{ matrix.os }}-experimental-off-build
+
   summary:
     if: true
     needs:
@@ -333,6 +376,7 @@ jobs:
       - windows-acceptance
       - linux-acceptance
       - distro-tests
+      - tools-experimental-off
     uses: ./.github/workflows/summary.yml
     with:
       output_prefix: tools-
