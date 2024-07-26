@@ -40,9 +40,6 @@ public:
     MfxLoader::Xcbpresent_Proxy& GetXcbpresentX11() {
         return m_xcbpresentlib;
     }
-    MfxLoader::DrmIntel_Proxy& GetDrmIntelX11() {
-        return m_drmintellib;
-    }
     #endif // X11_DRI3_SUPPORT
 
 protected:
@@ -57,7 +54,6 @@ protected:
     MfxLoader::X11_Xcb_Proxy m_x11xcblib;
     MfxLoader::XCB_Dri3_Proxy m_xcbdri3lib;
     MfxLoader::Xcbpresent_Proxy m_xcbpresentlib;
-    MfxLoader::DrmIntel_Proxy m_drmintellib;
     #endif // X11_DRI3_SUPPORT
     int fd;
 

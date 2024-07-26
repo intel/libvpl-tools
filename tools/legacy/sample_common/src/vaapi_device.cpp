@@ -72,39 +72,9 @@ mfxStatus CVAAPIDeviceX11::Init(mfxHDL hWindow, mfxU16 nViews, mfxU32 nAdapterNu
         }
     }
         #if defined(X11_DRI3_SUPPORT)
-    MfxLoader::DrmIntel_Proxy& drmintellib = m_X11LibVA.GetDrmIntelX11();
     MfxLoader::X11_Xcb_Proxy& x11xcblib    = m_X11LibVA.GetX11XcbX11();
 
     m_xcbconn = x11xcblib.XGetXCBConnection(VAAPI_GET_X_DISPLAY(m_X11LibVA.GetXDisplay()));
-
-    if (m_device_path.empty()) {
-        // it's enough to pass render node, because we only request
-        // information from kernel via m_dri_fd
-        for (mfxU32 i = 0; i < MFX_DEVICE_MAX_NODES; ++i) {
-            std::string devPath =
-                MFX_DEVICE_NODE_RENDER + std::to_string(MFX_DEVICE_NODE_INDEX + i);
-            m_dri_fd = open_intel_adapter(devPath);
-            if (m_dri_fd < 0)
-                continue;
-            else
-                break;
-        }
-    }
-    else {
-        m_dri_fd = open_intel_adapter(m_device_path);
-    }
-
-    if (m_dri_fd < 0) {
-        printf("Failed to open dri device\n");
-        return MFX_ERR_NOT_INITIALIZED;
-    }
-
-    m_bufmgr = drmintellib.drm_intel_bufmgr_gem_init(m_dri_fd, 4096);
-    if (!m_bufmgr) {
-        printf("Failed to get buffer manager\n");
-        return MFX_ERR_NOT_INITIALIZED;
-    }
-
         #endif
 
     return mfx_res;
@@ -121,11 +91,6 @@ void CVAAPIDeviceX11::Close(void) {
         free(m_window);
         m_window = NULL;
     }
-        #if defined(X11_DRI3_SUPPORT)
-    if (m_dri_fd) {
-        close(m_dri_fd);
-    }
-        #endif
 }
 
 mfxStatus CVAAPIDeviceX11::Reset(void) {
@@ -208,13 +173,11 @@ mfxStatus CVAAPIDeviceX11::RenderFrame(mfxFrameSurface1* pSurface,
         #else //\/ X11_DRI3_SUPPORT
     Window* window = VAAPI_GET_X_WINDOW(m_window);
     Window root;
-    drm_intel_bo* bo = NULL;
     unsigned int border, depth, stride, size, width, height;
     int fd = 0, bpp = 0, x, y;
 
     MfxLoader::Xcb_Proxy& xcblib               = m_X11LibVA.GetXcbX11();
     MfxLoader::XLib_Proxy& x11lib              = m_X11LibVA.GetX11();
-    MfxLoader::DrmIntel_Proxy& drmintellib     = m_X11LibVA.GetDrmIntelX11();
     MfxLoader::Xcbpresent_Proxy& xcbpresentlib = m_X11LibVA.GetXcbpresentX11();
     MfxLoader::XCB_Dri3_Proxy& dri3lib         = m_X11LibVA.GetXCBDri3X11();
 
@@ -271,15 +234,7 @@ mfxStatus CVAAPIDeviceX11::RenderFrame(mfxFrameSurface1* pSurface,
         stride = memId->m_image.pitches[0];
         size   = PAGE_ALIGN(stride * height);
 
-        bo = drmintellib.drm_intel_bo_gem_create_from_prime(m_bufmgr,
-                                                            memId->m_buffer_info.handle,
-                                                            size);
-        if (!bo) {
-            printf("Failed to create buffer object\n");
-            return MFX_ERR_INVALID_VIDEO_PARAM;
-        }
-
-        drmintellib.drm_intel_bo_gem_export_to_prime(bo, &fd);
+        fd = dup(memId->m_buffer_info.handle);
         if (!fd) {
             printf("Invalid fd\n");
             return MFX_ERR_NOT_INITIALIZED;
@@ -304,6 +259,7 @@ mfxStatus CVAAPIDeviceX11::RenderFrame(mfxFrameSurface1* pSurface,
                 "Failed to create xcb pixmap from the %s surface: try another color format (e.g. RGB4)\n",
                 ColorFormatToStr(pSurface->Info.FourCC));
             free(error);
+            close(fd);
             return MFX_ERR_INVALID_HANDLE;
         }
 
@@ -327,11 +283,13 @@ mfxStatus CVAAPIDeviceX11::RenderFrame(mfxFrameSurface1* pSurface,
         if ((error = xcblib.xcb_request_check(m_xcbconn, cookie))) {
             printf("Failed to present pixmap\n");
             free(error);
+            close(fd);
             return MFX_ERR_UNKNOWN;
         }
 
         xcblib.xcb_free_pixmap(m_xcbconn, pixmap);
         xcblib.xcb_flush(m_xcbconn);
+        close(fd);
     }
 
     return mfx_res;

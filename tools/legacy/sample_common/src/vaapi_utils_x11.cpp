@@ -19,6 +19,7 @@
 
 const char* MFX_X11_NODE_RENDER          = "/dev/dri/renderD";
 const char* MFX_X11_DRIVER_NAME          = "i915";
+const char* MFX_X11_DRIVER_XE_NAME       = "xe";
 constexpr mfxU32 MFX_X11_DRIVER_NAME_LEN = 4;
 constexpr mfxU32 MFX_X11_NODE_INDEX      = 128;
 constexpr mfxU32 MFX_X11_MAX_NODES       = 16;
@@ -38,7 +39,8 @@ int open_intel_adapter(const std::string& devicePath) {
     version.name                                 = driverName;
 
     if (!ioctl(fd, DRM_IOWR(0, drm_version), &version) &&
-        msdk_match(driverName, MFX_X11_DRIVER_NAME)) {
+        (msdk_match(driverName, MFX_X11_DRIVER_NAME) ||
+         msdk_match(driverName, MFX_X11_DRIVER_XE_NAME))) {
         return fd;
     }
 
