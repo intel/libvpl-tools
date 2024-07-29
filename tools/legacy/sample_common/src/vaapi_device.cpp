@@ -72,7 +72,7 @@ mfxStatus CVAAPIDeviceX11::Init(mfxHDL hWindow, mfxU16 nViews, mfxU32 nAdapterNu
         }
     }
         #if defined(X11_DRI3_SUPPORT)
-    MfxLoader::X11_Xcb_Proxy& x11xcblib    = m_X11LibVA.GetX11XcbX11();
+    MfxLoader::X11_Xcb_Proxy& x11xcblib = m_X11LibVA.GetX11XcbX11();
 
     m_xcbconn = x11xcblib.XGetXCBConnection(VAAPI_GET_X_DISPLAY(m_X11LibVA.GetXDisplay()));
         #endif

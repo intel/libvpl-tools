@@ -75,7 +75,7 @@ public:
         m_nRenderWinH = 0;
         m_bRenderWin  = false;
         #if defined(X11_DRI3_SUPPORT)
-        m_xcbconn     = NULL;
+        m_xcbconn = NULL;
         #endif
     }
     virtual ~CVAAPIDeviceX11(void);
