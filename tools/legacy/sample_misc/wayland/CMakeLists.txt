@@ -25,6 +25,7 @@ pkg_check_modules(PKGConfig_LIBDRM libdrm>=2.4.91 IMPORTED_TARGET)
 
 if(PKGConfig_LIBDRM_FOUND)
   add_library(${TARGET} SHARED)
+  set_target_properties(${TARGET} PROPERTIES VERSION 1.0.0)
 
   target_include_directories(
     ${TARGET} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include

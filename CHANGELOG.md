@@ -12,6 +12,10 @@ GPUs from the command line.
 
 ### Added
 - VVC decode support to sample_decode
+- Embedded version information to all shared libraries
+
+### Changed
+- Metrics monitor library to now build statically by default
 
 ## [1.1.0] - 2024-06-28
 

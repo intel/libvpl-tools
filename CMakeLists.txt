@@ -199,6 +199,7 @@ message(
 message(
   STATUS "  VPL_INSTALL_FULL_PYTHONDIR      : ${VPL_INSTALL_FULL_PYTHONDIR}")
 message(STATUS "Build:")
+message(STATUS "  BUILD_SHARED_LIBS               : ${BUILD_SHARED_LIBS}")
 message(STATUS "  BUILD_TESTS                     : ${BUILD_TESTS}")
 message(STATUS "  BUILD_EXPERIMENTAL              : ${BUILD_EXPERIMENTAL}")
 if(MSVC)

@@ -60,24 +60,19 @@ if(PKG_LIBDRM_FOUND)
   set(DEPENDENCIES libdrm)
   set(METRICS_LIB cttmetrics)
 
-  add_library(${METRICS_LIB} SHARED ${sources})
+  if(BUILD_SHARED_LIBS)
+    add_library(${METRICS_LIB} SHARED ${sources})
+    set_target_properties(${METRICS_LIB} PROPERTIES VERSION 1.0.0)
+    install(TARGETS ${METRICS_LIB} LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+                                           COMPONENT ${VPL_COMPONENT_TOOLS})
+  else()
+    add_library(${METRICS_LIB} STATIC ${sources})
+  endif()
 
   target_include_directories(${METRICS_LIB} PUBLIC include)
   target_link_libraries(${METRICS_LIB} PRIVATE PkgConfig::PKG_LIBDRM)
-
   target_compile_definitions(${METRICS_LIB} PRIVATE LIBVA_DRM_SUPPORT
                                                     LIBVA_SUPPORT)
-
-  # cttmetrics_static
-  add_library(cttmetrics_static STATIC ${sources})
-
-  target_include_directories(cttmetrics_static PUBLIC include)
-  target_link_libraries(cttmetrics_static PUBLIC PkgConfig::PKG_LIBDRM)
-
-  target_compile_definitions(cttmetrics_static PRIVATE LIBVA_DRM_SUPPORT
-                                                       LIBVA_SUPPORT)
-  install(TARGETS ${METRICS_LIB} LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-                                         COMPONENT ${VPL_COMPONENT_TOOLS})
 
   # metrics_monitor
   set(sources sample/cttmetrics_sample.cpp)
