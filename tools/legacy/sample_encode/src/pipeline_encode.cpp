@@ -793,6 +793,17 @@ mfxStatus CEncodingPipeline::InitMfxEncParams(sInputParams* pInParams) {
     }
 #endif
 
+    if (pInParams->nPalette || pInParams->nIntraBlockCopy) {
+        if (MFX_CODEC_AV1 == pInParams->CodecId) {
+            auto av1ScreenContentTools = m_mfxEncParams.AddExtBuffer<mfxExtAV1ScreenContentTools>();
+            av1ScreenContentTools->Palette        = pInParams->nPalette;
+            av1ScreenContentTools->IntraBlockCopy = pInParams->nIntraBlockCopy;
+        }
+        else {
+            printf("WARNING: -palette_mode and -intrabc support AV1 only\n");
+        }
+    }
+
     mfxStatus sts =
         SetParameters((mfxSession)(m_mfxSession), m_mfxEncParams, pInParams->m_encode_cfg);
     MSDK_CHECK_STATUS(sts, "SetParameters failed");

@@ -15,6 +15,7 @@ GPUs from the command line.
 ### Added
 - VVC decode support to sample_decode
 - Embedded version information to all shared libraries
+- Screen content coding tools for AV1 to sample_encode
 
 ### Changed
 - Metrics monitor library to now build statically by default

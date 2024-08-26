@@ -502,6 +502,11 @@ struct mfx_ext_buffer_id<mfxExtTuneEncodeQuality> {
 };
 #endif
 
+template <>
+struct mfx_ext_buffer_id<mfxExtAV1ScreenContentTools> {
+    enum { id = MFX_EXTBUFF_AV1_SCREEN_CONTENT_TOOLS };
+};
+
 constexpr uint16_t max_num_ext_buffers =
     63 * 2; // '*2' is for max estimation if all extBuffer were 'paired'
 

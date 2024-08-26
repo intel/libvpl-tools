@@ -307,6 +307,9 @@ void PrintHelp(char* strAppName, const char* strErrorMessage, ...) {
         "   [-preset <default,dss,conference,gaming>] - Use particular preset for encoding parameters\n");
     printf("   [-pp] - Print preset parameters\n");
     printf("   [-ivf:<on,off>] - Turn IVF header on/off\n");
+    printf("   [-palette_mode] - Enable palette prediction for encoder, available for AV1 only\n");
+    printf(
+        "   [-intrabc] - Enable intra block copy prediction for encoder, available for AV1 only\n");
     printf(
         "   [-api_ver_init::<1x,2x>]  - select the api version for the session initialization\n");
     printf("   [-rbf] - read frame-by-frame from the input (sw lib only)\n");
@@ -753,6 +756,12 @@ mfxStatus ParseAdditionalParams(char* strInput[],
         VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
         i++;
         pParams->m_vpp_cfg = strInput[i];
+    }
+    else if (msdk_match(strInput[i], "-palette_mode")) {
+        pParams->nPalette = MFX_CODINGOPTION_ON;
+    }
+    else if (msdk_match(strInput[i], "-intrabc")) {
+        pParams->nIntraBlockCopy = MFX_CODINGOPTION_ON;
     }
     else {
         return MFX_ERR_NOT_FOUND;

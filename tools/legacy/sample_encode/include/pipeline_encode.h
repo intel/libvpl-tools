@@ -250,6 +250,8 @@ struct sInputParams {
     bool bSingleTexture;
 
     mfxU16 nIVFHeader;
+    mfxU16 nPalette;
+    mfxU16 nIntraBlockCopy;
 
     char* RoundingOffsetFile;
     mfxU16 TargetBitDepthLuma;

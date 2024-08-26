@@ -354,6 +354,12 @@ void CParametersDumper::SerializeExtensionBuffer(std::ostream& sstr,
             SERIALIZE_INFO(prefix, BRCPanicMode);
             SERIALIZE_INFO_ARRAY(prefix, reserved);
         } break;
+        case MFX_EXTBUFF_AV1_SCREEN_CONTENT_TOOLS: {
+            mfxExtAV1ScreenContentTools& info = *(mfxExtAV1ScreenContentTools*)pExtBuffer;
+            SERIALIZE_INFO(prefix, Palette);
+            SERIALIZE_INFO(prefix, IntraBlockCopy);
+            SERIALIZE_INFO_ARRAY(prefix, reserved);
+        } break;
         case MFX_EXTBUFF_VPP_DONOTUSE: {
             mfxExtVPPDoNotUse& info = *(mfxExtVPPDoNotUse*)pExtBuffer;
             SERIALIZE_INFO(prefix, NumAlg);
