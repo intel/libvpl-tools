@@ -61,7 +61,7 @@ jobs:
           . source/.github/workflows/summary/tools.sh
 
           export source_root=artifacts
-          export dest_root=summary/bom
+          export dest_root=summary/bom/tools
 
           copy_all_artifacts "$DIFF_L" Linux
           copy_all_artifacts "$DIFF_W" Windows
@@ -73,7 +73,7 @@ jobs:
           . source/.github/workflows/summary/tools.sh
 
           export source_root=artifacts
-          export dest_root=summary/sdl
+          export dest_root=summary/sdl/tools
 
           copy_artifact "$BDBA" vulns.csv CT7-KnownVulnerabilities
           copy_artifact "$AV_S" report.txt CT37-MalwareScan source-report.txt
@@ -101,7 +101,7 @@ jobs:
           . source/.github/workflows/summary/tools.sh
 
           export source_root=artifacts
-          export dest_root=summary/swlc
+          export dest_root=summary/swlc/tools
 
           copy_all_artifacts "$IPLEAKS" ip_leaks
 

@@ -76,7 +76,7 @@ jobs:
       - name: Move artifacts to target directory
         run: |
             mv artifacts/* source/.github/workflows/sdl/
-            ls -al source/.github/workflows/sdl/sdl
+            ls -al source/.github/workflows/sdl/sdl/tools
 
       - name: Build Docker image
         run: >
@@ -92,7 +92,7 @@ jobs:
           #!/bin/bash
           ls source/.github/workflows/sdl
 
-          FILE_PATH="source/.github/workflows/sdl/sdl"
+          FILE_PATH="source/.github/workflows/sdl/sdl/tools"
           function publish() {
             TASK="$1"
             EVIDENCE="$2"
