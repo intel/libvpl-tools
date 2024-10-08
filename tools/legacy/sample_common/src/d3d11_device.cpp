@@ -78,7 +78,10 @@ mfxStatus CD3D11Device::FillSCD1(DXGI_SWAP_CHAIN_DESC1& scd1) {
     return MFX_ERR_NONE;
 }
 
-mfxStatus CD3D11Device::Init(mfxHDL hWindow, mfxU16 nViews, mfxU32 nAdapterNum) {
+mfxStatus CD3D11Device::Init(mfxHDL hWindow,
+                             mfxU16 nViews,
+                             mfxU32 nAdapterNum,
+                             bool /* isFullScreen */) {
     m_HandleWindow = (HWND)hWindow;
     mfxStatus sts  = MFX_ERR_NONE;
     HRESULT hres   = S_OK;

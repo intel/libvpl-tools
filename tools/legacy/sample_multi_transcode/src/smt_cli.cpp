@@ -849,6 +849,11 @@ void PrintHelp() {
     HELP_LINE("");
     HELP_LINE("  -rdrm        use libva DRM backend");
 #endif
+#if defined(LIBVA_GTK4_SUPPORT)
+    HELP_LINE("");
+    HELP_LINE("  -rgtk        use GTK renderer");
+    HELP_LINE("  -fullscreen  render in fullscreen");
+#endif
     HELP_LINE("");
     HELP_LINE("  -syncop_timeout");
     HELP_LINE("                SyncOperation timeout in milliseconds");
@@ -2871,6 +2876,15 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, char* argv[]) {
             else {
                 InputParams.monitorType = MFX_MONITOR_AUTO; // that's case of "-rdrm" pure option
             }
+        }
+#endif
+
+#if defined(LIBVA_GTK4_SUPPORT)
+        else if (msdk_starts_with(argv[i], "-rgtk")) {
+            InputParams.libvaBackend = MFX_LIBVA_GTK;
+        }
+        else if (msdk_match(argv[i], "-fullscreen")) {
+            InputParams.bIsFullscreen = true;
         }
 #endif
         else if (msdk_match(argv[i], "-vpp::sys")) {

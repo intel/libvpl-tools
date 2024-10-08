@@ -3868,6 +3868,9 @@ mfxStatus CTranscodingPipeline::SetupSurfacePool(mfxU32 preallocateNum) {
     #if defined(X11_DRI3_SUPPORT)
              (m_libvaBackend == MFX_LIBVA_X11) ||
     #endif // X11_DRI3_SUPPORT
+    #if defined(LIBVA_GTK4_SUPPORT)
+             (m_libvaBackend == MFX_LIBVA_GTK) ||
+    #endif // LIBVA_GTK4_SUPPORT
              (m_libvaBackend == MFX_LIBVA_WAYLAND))) {
             m_VPPOutAllocReques.Type |= MFX_MEMTYPE_EXPORT_FRAME;
         }

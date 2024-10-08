@@ -24,7 +24,9 @@ if(CMAKE_SYSTEM_NAME MATCHES Linux)
   pkg_check_modules(PKG_WAYLAND_CLIENT wayland-client IMPORTED_TARGET GLOBAL)
   find_program(WAYLAND_SCANNER_BIN "wayland-scanner")
   pkg_check_modules(PKG_WAYLAND_PROTOCOLS "wayland-protocols>=1.15")
-
+  pkg_check_modules(PKG_GTK4 GLOBAL IMPORTED_TARGET gtkmm-4.0)
+  pkg_check_modules(PKG_EPOXY GLOBAL IMPORTED_TARGET epoxy)
+  find_package(OpenGL)
   # Set defaults for ENABLE_VA
   if(PKG_LIBVA_FOUND AND PKG_LIBVA_DRM_FOUND)
     set(VA_DEFAULT ON)
@@ -79,6 +81,17 @@ if(CMAKE_SYSTEM_NAME MATCHES Linux)
   set(ENABLE_DRI3
       ${DRI3_DEFAULT}
       CACHE BOOL "Enable X11/DRI3 in tools.")
+
+  if(X11_DEFAULT AND PKG_GTK4_FOUND)
+    set(GTK4_DEFAULT ON)
+  else()
+    set(GTK4_DEFAULT OFF)
+  endif()
+
+  set(ENABLE_GTK4
+      ${GTK4_DEFAULT}
+      CACHE BOOL "Enable X11/GTK4 in tools.")
+
 endif()
 
 # Error if options conflict
@@ -87,6 +100,7 @@ if(NOT ENABLE_VA
         OR ENABLE_WAYLAND
         OR ENABLE_X11
         OR ENABLE_DRI3
+        OR ENABLE_GTK4
        ))
   message(
     SEND_ERROR "conflicting options: VA backend requested but ENABLE_VA=OFF")
@@ -100,6 +114,12 @@ if(ENABLE_DRI3 AND (NOT ENABLE_X11 OR NOT ENABLE_DRM))
   message(
     SEND_ERROR
       "conflicting options: DRI3 requires ENABLE_X11=ON and ENABLE_DRM=ON")
+endif()
+
+if(ENABLE_GTK4 AND (NOT ENABLE_X11 OR NOT ENABLE_DRM))
+  message(
+    SEND_ERROR
+      "conflicting options: GTK4 requires ENABLE_X11=ON and ENABLE_DRM=ON")
 endif()
 
 set(TARGET sample_common)
@@ -131,6 +151,7 @@ target_sources(
           src/vaapi_utils.cpp
           src/vaapi_utils_drm.cpp
           src/vaapi_utils_x11.cpp
+          src/vaapi_utils_gtk.cpp
           src/vpl_implementation_loader.cpp
           src/vpp_ex.cpp
           src/vm/atomic.cpp
@@ -140,7 +161,8 @@ target_sources(
           src/vm/thread_linux.cpp
           src/vm/thread_windows.cpp
           src/vm/time.cpp
-          src/vm/time_linux.cpp)
+          src/vm/time_linux.cpp
+          src/gtkutils.cpp)
 
 target_include_directories(
   ${TARGET} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include
@@ -304,6 +326,7 @@ if(CMAKE_SYSTEM_NAME MATCHES Linux)
           else()
             message(STATUS "Building ${TARGET} without DRI3 support")
           endif()
+
         else()
           message(
             SEND_ERROR
@@ -313,6 +336,16 @@ if(CMAKE_SYSTEM_NAME MATCHES Linux)
       else()
         message(STATUS "Building ${TARGET} without X11 support")
       endif()
+
+      if(ENABLE_GTK4)
+        target_compile_definitions(${TARGET} PUBLIC LIBVA_GTK4_SUPPORT)
+        target_link_libraries(${TARGET} PUBLIC PkgConfig::PKG_GTK4)
+        target_link_libraries(${TARGET} PUBLIC OpenGL::GL)
+        target_include_directories(${TARGET} PUBLIC OpenGL::GL)
+        target_link_libraries(${TARGET} PUBLIC PkgConfig::PKG_EPOXY)
+        target_include_directories(${TARGET} PUBLIC PkgConfig::PKG_EPOXY)
+      endif()
+
     else()
       message(
         SEND_ERROR

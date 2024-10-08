@@ -165,7 +165,10 @@ mfxStatus CD3D9Device::FillD3DPP(mfxHDL hWindow, mfxU16 nViews, D3DPRESENT_PARAM
     return sts;
 }
 
-mfxStatus CD3D9Device::Init(mfxHDL hWindow, mfxU16 nViews, mfxU32 nAdapterNum) {
+mfxStatus CD3D9Device::Init(mfxHDL hWindow,
+                            mfxU16 nViews,
+                            mfxU32 nAdapterNum,
+                            bool /* isFullScreen */) {
     mfxStatus sts = MFX_ERR_NONE;
 
     if (2 < nViews)

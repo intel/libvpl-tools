@@ -3,7 +3,6 @@
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
-
 #include <algorithm>
 #include "mfx_samples_config.h"
 #include "sample_defs.h"
@@ -121,6 +120,7 @@ CDecodingPipeline::CDecodingPipeline()
 #endif
           m_bResetFileWriter(false),
           m_bResetFileReader(false),
+          m_fullscreen(false),
           m_verSessionInit(API_2X) {
     // reserve some space to reduce dynamic reallocation impact on pipeline execution
     m_vLatency.reserve(1000);
@@ -479,7 +479,7 @@ mfxStatus CDecodingPipeline::Init(sInputParams* pParams) {
         MSDK_CHECK_STATUS(sts, "AV1d have no DX9 support \n");
     }
 #endif
-
+    m_fullscreen          = pParams->bIsFullscreen;
     bool isDeviceRequired = false;
     mfxHandleType hdl_t;
 #if D3D_SURFACES_SUPPORT
@@ -1150,8 +1150,9 @@ mfxStatus CDecodingPipeline::CreateHWDevice() {
 
     if (render)
         m_d3dRender.SetHWDevice(m_hwdev);
-#elif defined(LIBVA_DRM_SUPPORT) || defined(LIBVA_X11_SUPPORT) || \
-    defined(LIBVA_ANDROID_SUPPORT) || defined(LIBVA_WAYLAND_SUPPORT)
+#elif defined(LIBVA_DRM_SUPPORT) || defined(LIBVA_X11_SUPPORT) ||       \
+    defined(LIBVA_ANDROID_SUPPORT) || defined(LIBVA_WAYLAND_SUPPORT) || \
+    defined(LIBVA_GTK4_SUPPORT)
     mfxStatus sts = MFX_ERR_NONE;
 
     if (m_strDevicePath.empty() && m_verSessionInit == API_2X) {
@@ -1167,7 +1168,10 @@ mfxStatus CDecodingPipeline::CreateHWDevice() {
     mfxU32 adapterNum = (m_verSessionInit == API_1X) ? MSDKAdapter::GetNumber(m_mfxSession)
                                                      : MSDKAdapter::GetNumber(m_pLoader.get());
 
-    sts = m_hwdev->Init(&m_monitorType, (m_eWorkMode == MODE_RENDERING) ? 1 : 0, adapterNum);
+    sts = m_hwdev->Init(&m_monitorType,
+                        (m_eWorkMode == MODE_RENDERING) ? 1 : 0,
+                        adapterNum,
+                        m_fullscreen);
     MSDK_CHECK_STATUS(sts, "m_hwdev->Init failed");
 
     #if defined(LIBVA_WAYLAND_SUPPORT)
@@ -1185,6 +1189,15 @@ mfxStatus CDecodingPipeline::CreateHWDevice() {
         wld->SetPerfMode(m_bPerfMode);
     }
     #endif //LIBVA_WAYLAND_SUPPORT
+    #ifdef LIBVA_GTK4_SUPPORT
+    if (m_eWorkMode == MODE_RENDERING && m_libvaBackend == MFX_LIBVA_GTK) {
+        CVAAPIDeviceGTK* gtk_dev = dynamic_cast<CVAAPIDeviceGTK*>(m_hwdev);
+        if (!gtk_dev) {
+            MSDK_CHECK_STATUS(MFX_ERR_DEVICE_FAILED, "Failed to reach GTK VAAPI device");
+        }
+        printf("GTK Init complete %d\n", gtk_dev->GetInitDone());
+    }
+    #endif //LIBVA_GTK4_SUPPORT
 
 #endif
     return MFX_ERR_NONE;
@@ -1442,7 +1455,8 @@ mfxStatus CDecodingPipeline::CreateAllocator() {
                     dynamic_cast<vaapiAllocatorParams::Exporter*>(drmdev->getRenderer());
     #endif
             }
-            else if (m_libvaBackend == MFX_LIBVA_WAYLAND || m_libvaBackend == MFX_LIBVA_X11) {
+            else if (m_libvaBackend == MFX_LIBVA_WAYLAND || m_libvaBackend == MFX_LIBVA_X11 ||
+                     m_libvaBackend == MFX_LIBVA_GTK) {
                 p_vaapiAllocParams->m_export_mode = vaapiAllocatorParams::PRIME;
             }
         }
@@ -1793,7 +1807,6 @@ mfxStatus CDecodingPipeline::RunDecoding() {
 
                     // Reset bitstream state
                     pBitstream->DataFlag = 0;
-
                     continue;
                 }
 
@@ -1869,6 +1882,12 @@ mfxStatus CDecodingPipeline::RunDecoding() {
 
         // exit by timeout
         if ((MFX_ERR_NONE == sts) && m_bIsVideoWall && (time(0) - start_time) >= m_nTimeout) {
+            sts = MFX_ERR_NONE;
+            break;
+        }
+
+        // exit because GTK window is closed
+        if (m_bStopDeliverLoop) {
             sts = MFX_ERR_NONE;
             break;
         }
@@ -2114,6 +2133,7 @@ mfxStatus CDecodingPipeline::RunDecoding() {
 
     if (m_eWorkMode == MODE_RENDERING) {
         m_bStopDeliverLoop = true;
+
         m_pDeliverOutputSemaphore->Post();
 
         if (deliverThread.joinable())

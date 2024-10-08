@@ -370,7 +370,8 @@ mfxStatus Launcher::Init(int argc, char* argv[]) {
                                             ? MSDKAdapter::GetNumber(0, 0)
                                             : MSDKAdapter::GetNumber(m_pLoader.get());
 
-                    sts = hwdev->Init(&params.monitorType, 1, adapterNum);
+                    sts =
+                        hwdev->Init(&params.monitorType, 1, adapterNum, InputParams.bIsFullscreen);
     #if defined(LIBVA_DRM_SUPPORT)
                     if (params.libvaBackend == MFX_LIBVA_DRM_MODESET) {
                         CVAAPIDeviceDRM* drmdev     = dynamic_cast<CVAAPIDeviceDRM*>(hwdev.get());
@@ -380,7 +381,8 @@ mfxStatus Launcher::Init(int argc, char* argv[]) {
                     }
     #endif
     #if defined(LIBVA_X11_SUPPORT)
-                    if (params.libvaBackend == MFX_LIBVA_X11) {
+                    if (params.libvaBackend == MFX_LIBVA_X11 ||
+                        params.libvaBackend == MFX_LIBVA_GTK) {
                         pVAAPIParams->m_export_mode = vaapiAllocatorParams::PRIME;
                     }
     #endif
@@ -409,6 +411,16 @@ mfxStatus Launcher::Init(int argc, char* argv[]) {
                         pVAAPIParams->m_export_mode = vaapiAllocatorParams::PRIME;
                     }
     #endif // LIBVA_WAYLAND_SUPPORT
+    #ifdef LIBVA_GTK4_SUPPORT
+                    else if (params.libvaBackend == MFX_LIBVA_GTK) {
+                        CVAAPIDeviceGTK* gtk_dev = dynamic_cast<CVAAPIDeviceGTK*>(hwdev.get());
+                        if (!gtk_dev) {
+                            MSDK_CHECK_STATUS(MFX_ERR_DEVICE_FAILED,
+                                              "Failed to reach GTK VAAPI device");
+                        }
+                        printf("GTK Init complete %d\n", gtk_dev->GetInitDone());
+                    }
+    #endif
                     params.m_hwdev = hwdev.get();
                 }
                 else /* NO RENDERING*/
@@ -431,7 +443,7 @@ mfxStatus Launcher::Init(int argc, char* argv[]) {
                                             ? MSDKAdapter::GetNumber(0, 0)
                                             : MSDKAdapter::GetNumber(m_pLoader.get());
 
-                    sts = hwdev->Init(NULL, 0, adapterNum);
+                    sts = hwdev->Init(NULL, 0, adapterNum, m_InputParamsArray[i].bIsFullscreen);
                 }
                 if (libvaBackend != MFX_LIBVA_WAYLAND) {
                     MSDK_CHECK_STATUS(sts, "hwdev->Init failed");
@@ -734,7 +746,6 @@ void Launcher::Run() {
     }
 
     printf("\nTranscoding finished\n");
-
 } // mfxStatus Launcher::Init()
 
 void Launcher::DoTranscoding() {

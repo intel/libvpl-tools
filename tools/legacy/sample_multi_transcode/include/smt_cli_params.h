@@ -417,6 +417,7 @@ typedef struct sInputParams {
 #endif
     mfxU16 ScenarioInfo;
     mfxU16 ContentInfo;
+    bool bIsFullscreen;
     eAPIVersion verSessionInit;
 
     // set structure to define values
@@ -644,6 +645,7 @@ typedef struct sInputParams {
 #endif
               ScenarioInfo(0),
               ContentInfo(0),
+              bIsFullscreen(false),
               verSessionInit(API_2X) {
 #ifdef ENABLE_MCTF
         mctfParam.mode                  = VPP_FILTER_DISABLED;

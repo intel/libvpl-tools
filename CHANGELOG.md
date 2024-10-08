@@ -16,6 +16,9 @@ GPUs from the command line.
 - VVC decode support to sample_decode
 - Embedded version information to all shared libraries
 - Screen content coding tools for AV1 to sample_encode
+- GTK renderer option to samplde_decode and sample_multi_transcode
+- `-fullscreen` option to sample_decode and sample_multi_transcode when using GTK.
+  Enter fullscreen with Ctrl+f and exit with Esc
 
 ### Changed
 - Metrics monitor library to now build statically by default

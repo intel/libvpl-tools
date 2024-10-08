@@ -122,6 +122,11 @@ void PrintHelp(char* strAppName, const char* strErrorMessage) {
 #if defined(LIBVA_X11_SUPPORT)
     printf("   [-r]                      - render decoded data in a separate X11 window \n");
 #endif
+#if defined(LIBVA_GTK4_SUPPORT)
+    printf(
+        "   [-rgtk]                      - render decoded data in a separate X11 window using GTK. Need to use with -rgb4\n");
+    printf("   [-fullscreen]             - set the GTK player in fullscreen\n");
+#endif
 #if defined(LIBVA_WAYLAND_SUPPORT)
     printf("   [-rwld]                   - render decoded data in a Wayland window \n");
     printf("   [-perf]                   - turn on asynchronous flipping for Wayland rendering \n");
@@ -283,6 +288,14 @@ mfxStatus ParseInputString(char* strInput[], mfxU32 nArgNum, sInputParams* pPara
         else if (msdk_match(strInput[i], "-perf")) {
             pParams->bPerfMode = true;
         }
+    #if defined(LIBVA_GTK4_SUPPORT)
+        else if (msdk_match(strInput[i], "-rgtk")) {
+            pParams->memType          = D3D9_MEMORY;
+            pParams->accelerationMode = MFX_ACCEL_MODE_VIA_VAAPI;
+            pParams->mode             = MODE_RENDERING;
+            pParams->libvaBackend     = MFX_LIBVA_GTK;
+        }
+    #endif
         else if (0 == strncmp(strInput[i], "-rdrm", 5)) {
             pParams->memType          = D3D9_MEMORY;
             pParams->accelerationMode = MFX_ACCEL_MODE_VIA_VAAPI;
@@ -319,6 +332,11 @@ mfxStatus ParseInputString(char* strInput[], mfxU32 nArgNum, sInputParams* pPara
                 pParams->Height = 240;
 
             pParams->bRenderWin = true;
+        }
+#endif
+#if defined(LIBVA_GTK4_SUPPORT)
+        else if (msdk_match(strInput[i], "-fullscreen")) {
+            pParams->bIsFullscreen = true;
         }
 #endif
         else if (msdk_match(strInput[i], "-low_latency")) {

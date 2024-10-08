@@ -6,7 +6,6 @@
 
 #ifndef __PIPELINE_DECODE_H__
 #define __PIPELINE_DECODE_H__
-
 #include "sample_defs.h"
 
 #if D3D_SURFACES_SUPPORT
@@ -139,6 +138,7 @@ struct sInputParams {
     std::string m_decode_cfg;
     std::string m_vpp_cfg;
     std::string dump_file;
+    bool bIsFullscreen = false;
 };
 
 struct CPipelineStatistics {
@@ -199,6 +199,9 @@ public:
             if (pDecodeErrorReport->ErrorTypes & MFX_ERROR_FRAME_GAP)
                 printf("[Error] Frame Gap Error detected!\n");
         }
+    }
+    void stopDeliverLoop() {
+        m_bStopDeliverLoop = true;
     }
 
 protected: // functions
@@ -325,7 +328,7 @@ protected: // variables
 
     bool m_bResetFileWriter;
     bool m_bResetFileReader;
-
+    bool m_fullscreen;
     eAPIVersion m_verSessionInit;
 
 private:

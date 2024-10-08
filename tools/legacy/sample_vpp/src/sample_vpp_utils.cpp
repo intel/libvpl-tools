@@ -22,12 +22,6 @@
 #ifdef MFX_D3D11_SUPPORT
     #include "d3d11_allocator.h"
     #include "d3d11_device.h"
-
-#endif
-#ifdef LIBVA_SUPPORT
-    #include "vaapi_allocator.h"
-    #include "vaapi_device.h"
-
 #endif
 
 #include <algorithm>

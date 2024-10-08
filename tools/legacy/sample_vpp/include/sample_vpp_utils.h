@@ -34,6 +34,7 @@
 
     #ifdef LIBVA_SUPPORT
         #include "vaapi_allocator.h"
+        #include "vaapi_device.h"
         #include "vaapi_utils.h"
     #endif
 

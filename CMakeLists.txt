@@ -212,6 +212,7 @@ if(CMAKE_SYSTEM_NAME MATCHES Linux)
   message(STATUS "  ENABLE_WAYLAND                  : ${ENABLE_WAYLAND}")
   message(STATUS "  ENABLE_X11                      : ${ENABLE_X11}")
   message(STATUS "  ENABLE_DRI3                     : ${ENABLE_DRI3}")
+  message(STATUS "  ENABLE_GTK4                     : ${ENABLE_GTK4}")
 endif()
 
 message(STATUS "Surface sharing test tools:")

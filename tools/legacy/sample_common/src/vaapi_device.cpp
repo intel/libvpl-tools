@@ -5,9 +5,11 @@
   ############################################################################*/
 
 #if defined(LIBVA_DRM_SUPPORT) || defined(LIBVA_X11_SUPPORT) || defined(LIBVA_ANDROID_SUPPORT)
-
+    #ifdef LIBVA_GTK4_SUPPORT
+        #include "gtkutils.h"
+    #endif
+    #include "sample_utils.h"
     #include "vaapi_device.h"
-
     #if defined(LIBVA_WAYLAND_SUPPORT)
         #include "class_wayland.h"
     #endif
@@ -38,7 +40,10 @@ CVAAPIDeviceX11::~CVAAPIDeviceX11(void) {
     Close();
 }
 
-mfxStatus CVAAPIDeviceX11::Init(mfxHDL hWindow, mfxU16 nViews, mfxU32 nAdapterNum) {
+mfxStatus CVAAPIDeviceX11::Init(mfxHDL hWindow,
+                                mfxU16 nViews,
+                                mfxU32 nAdapterNum,
+                                bool /* isFullScreen */) {
     mfxStatus mfx_res = MFX_ERR_NONE;
     Window* window    = NULL;
 
@@ -306,7 +311,10 @@ CVAAPIDeviceWayland::~CVAAPIDeviceWayland(void) {
     m_WaylandClient.WaylandDestroy((MfxLoader::Wayland*)m_Wayland);
 }
 
-mfxStatus CVAAPIDeviceWayland::Init(mfxHDL hWindow, mfxU16 nViews, mfxU32 nAdapterNum) {
+mfxStatus CVAAPIDeviceWayland::Init(mfxHDL hWindow,
+                                    mfxU16 nViews,
+                                    mfxU32 nAdapterNum,
+                                    bool /* isFullScreen */) {
     mfxStatus mfx_res = MFX_ERR_NONE;
 
     if (nViews) {
@@ -399,7 +407,10 @@ CVAAPIDeviceDRM::~CVAAPIDeviceDRM(void) {
     MSDK_SAFE_DELETE(m_rndr);
 }
 
-mfxStatus CVAAPIDeviceDRM::Init(mfxHDL hWindow, mfxU16 nViews, mfxU32 nAdapterNum) {
+mfxStatus CVAAPIDeviceDRM::Init(mfxHDL hWindow,
+                                mfxU16 nViews,
+                                mfxU32 nAdapterNum,
+                                bool /* isFullScreen */) {
     if (0 == nViews) {
         return MFX_ERR_NONE;
     }
@@ -459,6 +470,11 @@ CHWDevice* CreateVAAPIDevice(const std::string& devicePath, int type) {
             device = new CVAAPIDeviceWayland(devicePath);
         #endif
             break;
+        case MFX_LIBVA_GTK:
+        #if defined(LIBVA_GTK4_SUPPORT)
+            device = new CVAAPIDeviceGTK(devicePath);
+        #endif
+            break;
         case MFX_LIBVA_AUTO:
         #if defined(LIBVA_X11_SUPPORT)
             try {
@@ -482,6 +498,91 @@ CHWDevice* CreateVAAPIDevice(const std::string& devicePath, int type) {
     return device;
 }
 
+        #if defined(LIBVA_GTK4_SUPPORT)
+void CVAAPIDeviceGTK::gtkMain(bool isFullScreen, std::promise<bool>&& initPromise) {
+    Glib::RefPtr<Gtk::Application> gtk_app = Gtk::Application::create();
+    auto window                            = new GtkPlayer(200, 200, isFullScreen);
+    m_dispatcher_ptr                       = window->m_dispatcher.get();
+    m_frame_data_ptr                       = &window->m_frame_data;
+
+    gtk_app->signal_activate().connect([&] {
+        gtk_app->add_window(*window);
+        window->show();
+    });
+    gtk_app->signal_window_removed().connect([&](Gtk::Window* window) {
+        m_ForceStop = true;
+        gtk_app->remove_window(*window);
+        delete window;
+    });
+    gtk_app->signal_shutdown().connect([&]() {
+        std::vector<Gtk::Window*> window_list = gtk_app->get_windows();
+        for (auto win : window_list) {
+            win->close();
+        }
+    });
+
+    initPromise.set_value(true);
+    gtk_app->run(0, nullptr);
+}
+
+mfxStatus CVAAPIDeviceGTK::Init(mfxHDL hWindow,
+                                mfxU16 /* nViews */,
+                                mfxU32 /* nAdapterNum */,
+                                bool isFullScreen) {
+    mfxStatus mfx_res = MFX_ERR_NONE;
+    m_initComplete    = m_initPromise.get_future();
+    m_gtk_thread =
+        new std::thread(&CVAAPIDeviceGTK::gtkMain, this, isFullScreen, std::move(m_initPromise));
+    m_gtk_thread->detach();
+    return mfx_res;
+}
+
+mfxStatus CVAAPIDeviceGTK::GetHandle(mfxHandleType type, mfxHDL* pHdl) {
+    if ((MFX_HANDLE_VA_DISPLAY == type) && (NULL != pHdl)) {
+        if (isWayland()) {
+            *pHdl = m_DRMLibVA->GetVADisplay();
+        }
+        else {
+            *pHdl = m_GtkLibVA->GetVADisplay();
+        }
+        return MFX_ERR_NONE;
+    }
+
+    return MFX_ERR_UNSUPPORTED;
+}
+
+mfxStatus CVAAPIDeviceGTK::RenderFrame(mfxFrameSurface1* pSurface, mfxFrameAllocator* pmfxAlloc) {
+    mfxStatus mfx_res   = MFX_ERR_NONE;
+    mfxFrameInfo* pInfo = &pSurface->Info;
+    int width           = pInfo->CropX + pInfo->CropW;
+    int height          = pInfo->CropY + pInfo->CropH;
+
+    if (m_ForceStop) {
+        return MFX_ERR_DEVICE_FAILED;
+    }
+
+    vaapiMemId* memId = nullptr;
+    memId             = (vaapiMemId*)(pSurface->Data.MemId);
+    if (!memId || !memId->m_surface) {
+        mfx_res = MFX_ERR_NULL_PTR;
+    }
+
+    m_frame_data_ptr->stride[0]  = memId->m_image.pitches[0];
+    m_frame_data_ptr->stride[1]  = memId->m_image.pitches[1];
+    m_frame_data_ptr->stride[2]  = memId->m_image.pitches[2];
+    m_frame_data_ptr->offset[0]  = memId->m_image.offsets[0];
+    m_frame_data_ptr->offset[1]  = memId->m_image.offsets[1];
+    m_frame_data_ptr->offset[2]  = memId->m_image.offsets[2];
+    m_frame_data_ptr->num_planes = memId->m_image.num_planes;
+    m_frame_data_ptr->fourcc     = memId->m_image.format.fourcc;
+    m_frame_data_ptr->height     = height;
+    m_frame_data_ptr->width      = width;
+    m_frame_data_ptr->fd         = (int)memId->m_buffer_info.handle;
+    m_dispatcher_ptr->emit();
+
+    return mfx_res;
+}
+        #endif
     #elif defined(LIBVA_ANDROID_SUPPORT)
 
 static AndroidLibVA g_LibVA;

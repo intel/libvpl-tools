@@ -25,7 +25,10 @@ class CD3D11Device : public CHWDevice {
 public:
     CD3D11Device();
     virtual ~CD3D11Device();
-    virtual mfxStatus Init(mfxHDL hWindow, mfxU16 nViews, mfxU32 nAdapterNum);
+    virtual mfxStatus Init(mfxHDL hWindow,
+                           mfxU16 nViews,
+                           mfxU32 nAdapterNum,
+                           bool isFullScreen = false);
     virtual mfxStatus Reset();
     virtual mfxStatus GetHandle(mfxHandleType type, mfxHDL* pHdl);
     virtual mfxStatus SetHandle(mfxHandleType type, mfxHDL hdl);

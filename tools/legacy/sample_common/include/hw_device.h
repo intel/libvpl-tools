@@ -16,8 +16,12 @@ public:
     @param[in] hWindow Window handle to bundle device to.
     @param[in] nViews Number of views to process.
     @param[in] nAdapterNum Number of adapter to use
+    @param[in] isFullScreen Full screen is enabled or not
     */
-    virtual mfxStatus Init(mfxHDL hWindow, mfxU16 nViews, mfxU32 nAdapterNum) = 0;
+    virtual mfxStatus Init(mfxHDL hWindow,
+                           mfxU16 nViews,
+                           mfxU32 nAdapterNum,
+                           bool isFullScreen = false) = 0;
     /// Reset device.
     virtual mfxStatus Reset() = 0;
     /// Get handle can be used for MFX session SetHandle calls
