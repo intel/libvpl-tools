@@ -892,8 +892,8 @@ void PrintHelp() {
 
     HELP_LINE("");
     HELP_LINE("ParFile format:");
-    HELP_LINE("  ParFile is extension of what can be achieved by setting pipeline in the command");
-    HELP_LINE("  line. For more information on ParFile format see readme-multi-transcode.pdf");
+    HELP_LINE("  A ParFile is a text file containing several command lines, each corresponding");
+    HELP_LINE("  to a single transcoding, decoding or encoding session.");
     HELP_LINE("");
     HELP_LINE("Examples:");
     HELP_LINE("  sample_multi_transcode -i::mpeg2 in.mpeg2 -o::h264 out.h264");
