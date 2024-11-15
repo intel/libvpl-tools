@@ -167,11 +167,11 @@ def display_adapters():
     with subprocess.Popen(cmd, shell=False) as proc:  # nosec
         proc.communicate()
         if proc.returncode != 0:
-            raise Exception("Error running command: " + cmd)
+            raise RuntimeError("Error running command: " + cmd)
         return proc.returncode
 
 
-# pylint: disable=invalid-name, too-many-arguments
+# pylint: disable=invalid-name,too-many-arguments,too-many-positional-arguments
 def run_test(c=None,
              i=None,
              o=None,
