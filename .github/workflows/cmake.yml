@@ -119,6 +119,9 @@ jobs:
   cmake:
     name: CMake ${{ inputs.os }} ${{ inputs.build_type }}
     runs-on: [self-hosted, "${{ inputs.os || 'Linux' }}"]
+    env:
+      dockerfile: 'docker-env/script/Dockerfile.rhel.build'
+      container_name: 'vpl_build:rhel'
     steps:
 
       - name: Cleanup workspace (Linux)
@@ -137,12 +140,18 @@ jobs:
           ref: ${{ inputs.ref }}
           token: ${{ secrets.token || github.token }}
 
+      - name: Checkout docker environment (Linux)
+        if: always() && runner.os == 'Linux'
+        uses: actions/checkout@v4
+        with:
+          path: docker-env
+
       - name: Install dependencies (Linux)
         if: always() && runner.os == 'Linux'
         run: >
           docker build ${{ inputs.docker_opts }}
-          -f "source/script/Dockerfile.rhel.build"
-          -t vpl_build:rhel
+          -f "$dockerfile"
+          -t $container_name
           "source/script"
 
       - name: Install dependencies (Windows)
