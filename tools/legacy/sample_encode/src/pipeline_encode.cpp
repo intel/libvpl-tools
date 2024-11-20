@@ -2460,7 +2460,7 @@ mfxStatus CEncodingPipeline::Run() {
                 InsertIDR(pCurrentTask->encCtrl, m_bInsertIDR);
             m_bInsertIDR = false;
 
-            if (m_bTCBRCFileMode && &m_pEncSurfaces[nEncSurfIdx]) {
+            if (m_bTCBRCFileMode) {
                 sts = ConfigTCBRCTest(&m_pEncSurfaces[nEncSurfIdx]);
                 MSDK_CHECK_STATUS(sts, "TCBRC reset failed");
             }
