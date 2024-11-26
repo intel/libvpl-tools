@@ -10,15 +10,25 @@ GPUs from the command line.
 
 ## [Unreleased]
 
+## [1.3.0] - 2024-12-13
+
+### Added
+- Screen content coding tools for AV1 to `sample_encode`
+
+- GTK renderer option to `sample_decode` and `sample_multi_transcode`
+- `-fullscreen` option to `sample_decode` and `sample_multi_transcode` when
+  using GTK.  Enter fullscreen with Ctrl+f and exit with Esc
+
+- Improved support for Python 3.12 development environments.
+
+### Fixed
+- Bootstrap to support Debian distributions that do not define `ID_LIKE`.
+
 ## [1.2.0] - 2024-08-30
 
 ### Added
-- VVC decode support to sample_decode
+- VVC decode support to `sample_decode`
 - Embedded version information to all shared libraries
-- Screen content coding tools for AV1 to sample_encode
-- GTK renderer option to samplde_decode and sample_multi_transcode
-- `-fullscreen` option to sample_decode and sample_multi_transcode when using GTK.
-  Enter fullscreen with Ctrl+f and exit with Esc
 
 ### Changed
 - Metrics monitor library to now build statically by default
@@ -31,7 +41,7 @@ GPUs from the command line.
 
 ### Fixed
 - va-attrib for vaapiallocator
-- D3D11 texture not being released in val-surface-sharing test tool
+- D3D11 texture not being released in `val-surface-sharing` test tool
 
 ## [1.0.0] - 2024-04-26
 
@@ -41,7 +51,8 @@ GPUs from the command line.
   (https://github.com/intel/libvpl)
 
 
-[Unreleased]: https://github.com/intel/libvpl/compare/v1.2.0...HEAD
+[Unreleased]: https://github.com/intel/libvpl/compare/v1.3.0...HEAD
+[1.3.0]: https://github.com/intel/libvpl/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/intel/libvpl/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/intel/libvpl/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/intel/libvpl/releases/tag/v1.0.0
