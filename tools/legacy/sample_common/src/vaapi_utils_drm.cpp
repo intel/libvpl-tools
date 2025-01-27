@@ -208,12 +208,12 @@ drmRenderer::drmRenderer(int fd, mfxI32 monitorType)
           m_crtcID(),
           m_crtcIndex(),
           m_planeID(),
+          m_modes_list(),
           m_mode(),
           m_crtc(),
           m_connectorProperties(),
           m_crtcProperties(),
           m_overlay_wrn(true),
-          m_bSentHDR(false),
           m_bHdrSupport(false),
     #if defined(DRM_LINUX_HDR_SUPPORT)
           m_hdrMetaData({}),
@@ -412,6 +412,10 @@ bool drmRenderer::setupConnection(drmModeRes* resource, drmModeConnector* connec
 
     // we will use the first available mode - that's always mode with the highest resolution
     m_mode = connector->modes[0];
+
+    m_modes_list.clear();
+    for (int i = 0; i < connector->count_modes; ++i)
+        m_modes_list.push_back(connector->modes[i]);
 
     edidBlobId = getConnectorPropertyValue("EDID");
     edidBlob   = m_drmlib.drmModeGetPropertyBlob(m_fd, edidBlobId);
@@ -920,6 +924,55 @@ mfxStatus drmRenderer::render(mfxFrameSurface1* pSurface) {
         return MFX_ERR_UNKNOWN;
     }
 
+    std::call_once(m_bCheckMode, [this, pSurface]() {
+        // Use mode with the highest resolution for > 5K resolution
+        for (const auto& mode : m_modes_list) {
+            if ((mode.hdisplay >= pSurface->Info.CropX + pSurface->Info.CropW) &&
+                (mode.vdisplay >= pSurface->Info.CropY + pSurface->Info.CropH) &&
+                (pSurface->Info.CropX + pSurface->Info.CropW > HDISPLAY_5K_PER_PIPE)) {
+                m_mode = mode;
+                printf("drmrender: connected via %s to %dx%d@%d capable display (updated)\n",
+                       getConnectorName(m_connector_type),
+                       m_mode.hdisplay,
+                       m_mode.vdisplay,
+                       m_mode.vrefresh);
+                break;
+            }
+        }
+    });
+
+    try {
+        std::call_once(m_bSentHDR, [this, pSurface]() {
+    // to support direct panel tonemap for 8K@60 HDR playback via CH7218 connected
+    // to 8K HDR panel.
+    #if (MFX_VERSION >= 2006)
+            mfxExtMasteringDisplayColourVolume* displayColor =
+                (mfxExtMasteringDisplayColourVolume*)GetExtBuffer(
+                    pSurface->Data.ExtParam,
+                    pSurface->Data.NumExtParam,
+                    MFX_EXTBUFF_MASTERING_DISPLAY_COLOUR_VOLUME);
+            mfxExtContentLightLevelInfo* contentLight =
+                (mfxExtContentLightLevelInfo*)GetExtBuffer(pSurface->Data.ExtParam,
+                                                           pSurface->Data.NumExtParam,
+                                                           MFX_EXTBUFF_CONTENT_LIGHT_LEVEL_INFO);
+
+            if (m_bHdrSupport && (displayColor && contentLight)) {
+                if (displayColor->InsertPayloadToggle == MFX_PAYLOAD_IDR ||
+                    contentLight->InsertPayloadToggle == MFX_PAYLOAD_IDR) {
+                    // both panel and bitstream have HDR support
+                    if (drmSetColorSpace(true) ||
+                        drmSendHdrMetaData(displayColor, contentLight, true))
+                        throw std::runtime_error("HDR Panel-tonemap failed");
+                }
+            }
+    #endif
+        });
+    }
+    catch (const std::exception& e) {
+        printf("Error: %s \n", e.what());
+        return MFX_ERR_UNKNOWN;
+    }
+
     if ((m_mode.hdisplay == memid->m_image.width) && (m_mode.vdisplay == memid->m_image.height)) {
         // surface in the framebuffer exactly matches crtc scanout port, so we
         // can scanout from this framebuffer for the whole crtc
@@ -933,29 +986,6 @@ mfxStatus drmRenderer::render(mfxFrameSurface1* pSurface) {
             m_overlay_wrn = false;
             printf("drmrender: warning: rendering via OVERLAY plane\n");
         }
-    // to support direct panel tonemap for 8K@60 HDR playback via CH7218 connected
-    // to 8K HDR panel.
-    #if (MFX_VERSION >= 2006)
-        mfxExtMasteringDisplayColourVolume* displayColor =
-            (mfxExtMasteringDisplayColourVolume*)GetExtBuffer(
-                pSurface->Data.ExtParam,
-                pSurface->Data.NumExtParam,
-                MFX_EXTBUFF_MASTERING_DISPLAY_COLOUR_VOLUME);
-        mfxExtContentLightLevelInfo* contentLight =
-            (mfxExtContentLightLevelInfo*)GetExtBuffer(pSurface->Data.ExtParam,
-                                                       pSurface->Data.NumExtParam,
-                                                       MFX_EXTBUFF_CONTENT_LIGHT_LEVEL_INFO);
-
-        if (!m_bSentHDR && m_bHdrSupport && (displayColor && contentLight)) {
-            if (displayColor->InsertPayloadToggle == MFX_PAYLOAD_IDR ||
-                contentLight->InsertPayloadToggle == MFX_PAYLOAD_IDR) {
-                // both panel and bitstream have HDR support
-                if (drmSetColorSpace(true) || drmSendHdrMetaData(displayColor, contentLight, true))
-                    return MFX_ERR_UNKNOWN;
-            }
-            m_bSentHDR = true;
-        }
-    #endif
         // surface in the framebuffer exactly does NOT match crtc scanout port,
         // and we can only use overlay technique with possible resize (depending on the driver))
         ret = m_drmlib.drmModeSetPlane(m_fd,

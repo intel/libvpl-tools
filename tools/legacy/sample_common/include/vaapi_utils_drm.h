@@ -58,6 +58,8 @@ enum drm_static_metadata_id { DRM_STATIC_METADATA_TYPE1 = 0 };
 #define EDID_CEA_EXT_TAG_STATIC_METADATA  0x6
 #define EDID_CEA_EXT_TAG_DYNAMIC_METADATA 0x7
 
+#define HDISPLAY_5K_PER_PIPE 5120
+
 #if defined(LIBVA_DRM_SUPPORT)
 
     #include <va/va_drm.h>
@@ -142,18 +144,20 @@ private:
     uint32_t m_crtcID;
     uint32_t m_crtcIndex;
     uint32_t m_planeID;
+    std::list<drmModeModeInfo> m_modes_list;
     drmModeModeInfo m_mode;
     drmModeCrtcPtr m_crtc;
     drmModeObjectPropertiesPtr m_connectorProperties;
     drmModeObjectPropertiesPtr m_crtcProperties;
     drm_intel_bufmgr* m_bufmgr;
     bool m_overlay_wrn;
-    bool m_bSentHDR;
     bool m_bHdrSupport;
     #if defined(DRM_LINUX_HDR_SUPPORT)
     struct drmHdrMetaData m_hdrMetaData;
     #endif
     bool m_bRequiredTiled4;
+    std::once_flag m_bSentHDR;
+    std::once_flag m_bCheckMode;
     mfxFrameSurface1* m_pCurrentRenderTargetSurface;
 
 private:
