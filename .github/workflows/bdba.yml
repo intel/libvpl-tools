@@ -1,5 +1,6 @@
 ---
 name: Vulnerability scan
+
 permissions: read-all
 
 on:
@@ -17,6 +18,10 @@ on:
       pattern:
         description: 'Glob pattern to the artifacts that should be scanned'
         required: true
+        type: string
+      docker_opts:
+        description: 'extra options for docker build'
+        required: false
         type: string
 
 jobs:
@@ -48,9 +53,12 @@ jobs:
 
       - name: Build Docker image
         run: >
-          docker build "source/.github/workflows/bdba"
+          docker build ${{ inputs.docker_opts }}
           -f "source/.github/workflows/bdba/Dockerfile.ubuntu.bdba"
+          --build-arg USER_ID=$(id -u)
+          --build-arg GROUP_ID=$(id -g)
           -t vpl_bdba:ubuntu
+          "source/.github/workflows/bdba"
 
       - name: Scan package
         run: |

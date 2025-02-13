@@ -622,7 +622,7 @@ class TestSuite(TestContainer):
     def _read_csv_result(self, result: str):
         """Read in results from a TeamCity test format csv file"""
         tests_found = 0
-        with open(result, newline='', encoding="utf-8") as csv_file:
+        with open(result, newline='', encoding="utf8") as csv_file:
             try:
                 dialect = csv.Sniffer().sniff(csv_file.readline(),
                                               delimiters=';,\t')
@@ -759,9 +759,7 @@ class TestPackage:
             test_result_files.extend([('csv', os.path.abspath(match))
                                       for match in glob("*.csv")])
         count = 0
-
-        if not suite_per_file:
-            suite = TestSuite(suite_name, source)
+        suite = TestSuite(suite_name, source)
 
         for result_format, result_file in test_result_files:
             tests_found = None
@@ -769,7 +767,7 @@ class TestPackage:
                 suite = TestSuite(
                     suite_name + "/" + os.path.basename(result_file),
                     result_file)
-                tests_found = suite.read_result(result_file, result_format)
+            tests_found = suite.read_result(result_file, result_format)
             if tests_found:
                 count += 1
                 if suite_per_file:
@@ -1157,7 +1155,7 @@ def load_defects(db_path):
     """Load defect database"""
     if not db_path or not os.path.isfile(db_path):
         return {}
-    with open(db_path, newline='', encoding="utf-8") as db_file:
+    with open(db_path, newline='', encoding="utf8") as db_file:
         json_data = json.load(db_file)
         return json_data
 
