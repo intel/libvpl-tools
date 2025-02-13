@@ -10,6 +10,9 @@ GPUs from the command line.
 
 ## [Unreleased]
 
+### Changed
+- Default Ubuntu build to 24.04.
+
 ## [1.3.0] - 2024-12-13
 
 ### Added
