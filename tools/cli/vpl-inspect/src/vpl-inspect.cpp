@@ -114,22 +114,6 @@ const char *_print_MediaAdapterType(mfxMediaAdapterType type) {
 }
 
 #ifdef ONEVPL_EXPERIMENTAL
-const char *_print_EncodeStatsType(mfxU16 type) {
-    switch (type) {
-        STRING_OPTION(MFX_ENCODESTATS_LEVEL_BLK);
-        STRING_OPTION(MFX_ENCODESTATS_LEVEL_SLICE);
-        STRING_OPTION(MFX_ENCODESTATS_LEVEL_TILE);
-        STRING_OPTION(MFX_ENCODESTATS_LEVEL_FRAME);
-
-        default:
-            break;
-    }
-
-    return "<unknown encode stats type>";
-}
-#endif
-
-#ifdef ONEVPL_EXPERIMENTAL
 const char *_print_SurfaceType(mfxSurfaceType type) {
     switch (type) {
         STRING_OPTION(MFX_SURFACE_TYPE_UNKNOWN);
@@ -549,28 +533,6 @@ int main(int argc, char *argv[]) {
                        "",
                        enc->Codecs[codec].BiDirectionalPrediction);
 
-#ifdef ONEVPL_EXPERIMENTAL
-                // Once ReportedStats is moved out of experimental API the struct version of mfxEncoderDescription should
-                //   be updated, and that can be used to know whether this field is valid.
-                // For now, just check implementation API version.
-                mfxVersion reqApiVersionReportedStats = {};
-                reqApiVersionReportedStats.Major      = 2;
-                reqApiVersionReportedStats.Minor      = 7;
-                if (idesc->ApiVersion.Version >= reqApiVersionReportedStats.Version) {
-                    mfxU16 reportedStats = enc->Codecs[codec].ReportedStats;
-                    if (reportedStats) {
-                        for (mfxU16 statMask = 1; statMask != 0; statMask <<= 1) {
-                            if (reportedStats & statMask) {
-                                const char *statStr = _print_EncodeStatsType(statMask);
-                                printf("%4sReportedStats: %s\n", "", statStr);
-                            }
-                        }
-                    }
-                    else {
-                        printf("%4sReportedStats: 0\n", "");
-                    }
-                }
-#endif
                 for (int profile = 0; profile < enc->Codecs[codec].NumProfiles; profile++) {
                     printf("%6sProfile: %s\n",
                            "",
