@@ -21,8 +21,6 @@ const char* MFX_X11_NODE_RENDER          = "/dev/dri/renderD";
 const char* MFX_X11_DRIVER_NAME          = "i915";
 const char* MFX_X11_DRIVER_XE_NAME       = "xe";
 constexpr mfxU32 MFX_X11_DRIVER_NAME_LEN = 4;
-constexpr mfxU32 MFX_X11_NODE_INDEX      = 128;
-constexpr mfxU32 MFX_X11_MAX_NODES       = 16;
 
     #if defined(X11_DRI3_SUPPORT)
 int open_intel_adapter(const std::string& devicePath) {

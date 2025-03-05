@@ -7,6 +7,7 @@
     #include "vaapi_utils_gtk.h"
     #include <fcntl.h>
     #include <sys/ioctl.h>
+    #include "vaapi_utils_common.h"
 
     #define VAAPI_X_DEFAULT_DISPLAY ":0.0"
 
@@ -16,6 +17,7 @@ X11GtkVA ::X11GtkVA(const std::string& devicePath)
           m_configID(VA_INVALID_ID),
           m_contextID(VA_INVALID_ID) {
     char* currentDisplay = getenv("DISPLAY");
+    fd                   = -1;
 
     m_display = (currentDisplay) ? m_x11lib.XOpenDisplay(currentDisplay)
                                  : m_x11lib.XOpenDisplay(VAAPI_X_DEFAULT_DISPLAY);
@@ -25,7 +27,31 @@ X11GtkVA ::X11GtkVA(const std::string& devicePath)
         throw std::bad_alloc();
     }
 
+    #if defined(X11_DRI3_SUPPORT)
+    if (devicePath.empty()) {
+        for (mfxU32 i = 0; i < MFX_X11_MAX_NODES; ++i) {
+            std::string devPath = MFX_X11_NODE_RENDER + std::to_string(MFX_X11_NODE_INDEX + i);
+            fd                  = open_intel_adapter(devPath);
+            if (fd < 0)
+                continue;
+            else
+                break;
+        }
+    }
+    else {
+        fd = open_intel_adapter(devicePath);
+    }
+
+    if (fd < 0) {
+        m_x11lib.XCloseDisplay(m_display);
+        printf("Failed to open adapter\n");
+        throw std::bad_alloc();
+    }
+
+    m_va_dpy = m_vadrmlib.vaGetDisplayDRM(fd);
+    #else
     m_va_dpy = m_vax11lib.vaGetDisplay(m_display);
+    #endif
 
     if (!m_va_dpy) {
         m_x11lib.XCloseDisplay(m_display);

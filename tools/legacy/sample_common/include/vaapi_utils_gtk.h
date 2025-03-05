@@ -35,6 +35,10 @@ protected:
     VAContextID m_contextID;
     MfxLoader::XLib_Proxy m_x11lib;
     MfxLoader::VA_X11Proxy m_vax11lib;
+    #if defined(X11_DRI3_SUPPORT)
+    MfxLoader::VA_DRMProxy m_vadrmlib;
+    #endif // X11_DRI3_SUPPORT
+    int fd;
 
 private:
     void Close();

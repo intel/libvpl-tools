@@ -261,8 +261,12 @@ public:
     }
 
     virtual ~CVAAPIDeviceGTK(void) {
-        delete m_GtkLibVA;
-        delete m_DRMLibVA;
+        if (isWayland()) {
+            delete m_DRMLibVA;
+        }
+        else {
+            delete m_GtkLibVA;
+        }
     }
 
     virtual mfxStatus Init(mfxHDL hWindow, mfxU16 nViews, mfxU32 nAdapterNum, bool isFullScreen);

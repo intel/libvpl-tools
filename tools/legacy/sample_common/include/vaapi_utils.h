@@ -502,6 +502,8 @@ public:
 
 } // namespace MfxLoader
 
+constexpr mfxU32 MFX_X11_NODE_INDEX = 128;
+constexpr mfxU32 MFX_X11_MAX_NODES  = 16;
 class CLibVA {
 public:
     virtual ~CLibVA(void){};
