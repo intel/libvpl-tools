@@ -10,6 +10,9 @@ GPUs from the command line.
 
 ## [Unreleased]
 
+### Added
+- Intel® Media Transcode Accelerator as a supported device
+
 ### Changed
 - Default Ubuntu build to 24.04.
 
