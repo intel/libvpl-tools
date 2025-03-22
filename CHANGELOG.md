@@ -12,6 +12,7 @@ GPUs from the command line.
 
 ### Added
 - Intel® Media Transcode Accelerator as a supported device
+- New strings in vpl-inspect tool to improve readability of output.
 
 ### Changed
 - Default Ubuntu build to 24.04.

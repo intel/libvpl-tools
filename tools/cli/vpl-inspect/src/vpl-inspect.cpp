@@ -22,6 +22,7 @@
 #include <string>
 
 #include "vpl/mfx.h"
+#include "vpl/mfxcamera.h"
 
 #define DECODE_FOURCC(ch) ch & 0xff, ch >> 8 & 0xff, ch >> 16 & 0xff, ch >> 24 & 0xff
 
@@ -176,6 +177,172 @@ const char *_print_ResourceType(mfxResourceType type) {
     }
 
     return "<unknown resource type>";
+}
+
+const char *_print_CodecID(mfxU32 codecID) {
+    switch (codecID) {
+        STRING_OPTION(MFX_CODEC_AV1);
+        STRING_OPTION(MFX_CODEC_AVC);
+        STRING_OPTION(MFX_CODEC_JPEG);
+        STRING_OPTION(MFX_CODEC_HEVC);
+        STRING_OPTION(MFX_CODEC_MPEG2);
+        STRING_OPTION(MFX_CODEC_VC1);
+        STRING_OPTION(MFX_CODEC_VP8);
+        STRING_OPTION(MFX_CODEC_VP9);
+        default:
+            break;
+    }
+
+    // unknown format - print fourCC
+    return _print_fourcc(codecID);
+}
+
+const char *_print_ExtbufID(mfxU32 extbufID) {
+    switch (extbufID) {
+        STRING_OPTION(MFX_EXTBUFF_ALLOCATION_HINTS);
+        STRING_OPTION(MFX_EXTBUFF_AV1_FILM_GRAIN_PARAM);
+        STRING_OPTION(MFX_EXTBUFF_AV1_SEGMENTATION);
+        STRING_OPTION(MFX_EXTBUFF_AVC_REFLIST_CTRL);
+        STRING_OPTION(MFX_EXTBUFF_AVC_REFLISTS);
+        STRING_OPTION(MFX_EXTBUFF_AVC_ROUNDING_OFFSET);
+        STRING_OPTION(MFX_EXTBUFF_AVC_TEMPORAL_LAYERS);
+        STRING_OPTION(MFX_EXTBUFF_BRC);
+        STRING_OPTION(MFX_EXTBUF_CAM_3DLUT);
+        STRING_OPTION(MFX_EXTBUF_CAM_BAYER_DENOISE);
+        STRING_OPTION(MFX_EXTBUF_CAM_BLACK_LEVEL_CORRECTION);
+        STRING_OPTION(MFX_EXTBUF_CAM_COLOR_CORRECTION_3X3);
+        STRING_OPTION(MFX_EXTBUF_CAM_CSC_YUV_RGB);
+        STRING_OPTION(MFX_EXTBUF_CAM_FORWARD_GAMMA_CORRECTION);
+        STRING_OPTION(MFX_EXTBUF_CAM_HOT_PIXEL_REMOVAL);
+        STRING_OPTION(MFX_EXTBUF_CAM_LENS_GEOM_DIST_CORRECTION);
+        STRING_OPTION(MFX_EXTBUF_CAM_PADDING);
+        STRING_OPTION(MFX_EXTBUF_CAM_PIPECONTROL);
+        STRING_OPTION(MFX_EXTBUF_CAM_TOTAL_COLOR_CONTROL);
+        STRING_OPTION(MFX_EXTBUF_CAM_VIGNETTE_CORRECTION);
+        STRING_OPTION(MFX_EXTBUF_CAM_WHITE_BALANCE);
+        STRING_OPTION(MFX_EXTBUFF_CENC_PARAM);
+        STRING_OPTION(MFX_EXTBUFF_CHROMA_LOC_INFO);
+        STRING_OPTION(MFX_EXTBUFF_CODING_OPTION);
+        STRING_OPTION(MFX_EXTBUFF_CODING_OPTION_SPSPPS);
+        STRING_OPTION(MFX_EXTBUFF_CODING_OPTION_VPS);
+        STRING_OPTION(MFX_EXTBUFF_CODING_OPTION2);
+        STRING_OPTION(MFX_EXTBUFF_CODING_OPTION3);
+        STRING_OPTION(MFX_EXTBUFF_CONTENT_LIGHT_LEVEL_INFO);
+        STRING_OPTION(MFX_EXTBUFF_CROPS);
+        STRING_OPTION(MFX_EXTBUFF_DEC_VIDEO_PROCESSING);
+        STRING_OPTION(MFX_EXTBUFF_DECODE_ERROR_REPORT);
+        STRING_OPTION(MFX_EXTBUFF_DECODED_FRAME_INFO);
+        STRING_OPTION(MFX_EXTBUFF_DEVICE_AFFINITY_MASK);
+        STRING_OPTION(MFX_EXTBUFF_DIRTY_RECTANGLES);
+        STRING_OPTION(MFX_EXTBUFF_ENCODED_FRAME_INFO);
+        STRING_OPTION(MFX_EXTBUFF_ENCODED_SLICES_INFO);
+        STRING_OPTION(MFX_EXTBUFF_ENCODED_UNITS_INFO);
+        STRING_OPTION(MFX_EXTBUFF_ENCODER_CAPABILITY);
+        STRING_OPTION(MFX_EXTBUFF_ENCODER_IPCM_AREA);
+        STRING_OPTION(MFX_EXTBUFF_ENCODER_RESET_OPTION);
+        STRING_OPTION(MFX_EXTBUFF_ENCODER_ROI);
+        STRING_OPTION(MFX_EXTBUFF_HEVC_PARAM);
+        STRING_OPTION(MFX_EXTBUFF_HEVC_REGION);
+        STRING_OPTION(MFX_EXTBUFF_HEVC_TILES);
+        STRING_OPTION(MFX_EXTBUFF_INSERT_HEADERS);
+        STRING_OPTION(MFX_EXTBUFF_JPEG_HUFFMAN);
+        STRING_OPTION(MFX_EXTBUFF_JPEG_QT);
+        STRING_OPTION(MFX_EXTBUFF_MASTERING_DISPLAY_COLOUR_VOLUME);
+        STRING_OPTION(MFX_EXTBUFF_MASTERING_DISPLAY_COLOUR_VOLUME_IN);
+        STRING_OPTION(MFX_EXTBUFF_MASTERING_DISPLAY_COLOUR_VOLUME_OUT);
+        STRING_OPTION(MFX_EXTBUFF_MB_DISABLE_SKIP_MAP);
+        STRING_OPTION(MFX_EXTBUFF_MB_FORCE_INTRA);
+        STRING_OPTION(MFX_EXTBUFF_MBQP);
+        STRING_OPTION(MFX_EXTBUFF_MOVING_RECTANGLES);
+        STRING_OPTION(MFX_EXTBUFF_MV_OVER_PIC_BOUNDARIES);
+        STRING_OPTION(MFX_EXTBUFF_MVC_SEQ_DESC);
+        STRING_OPTION(MFX_EXTBUFF_MVC_TARGET_VIEWS);
+        STRING_OPTION(MFX_EXTBUFF_PARTIAL_BITSTREAM_PARAM);
+        STRING_OPTION(MFX_EXTBUFF_PICTURE_TIMING_SEI);
+        STRING_OPTION(MFX_EXTBUFF_PRED_WEIGHT_TABLE);
+        STRING_OPTION(MFX_EXTBUFF_THREADS_PARAM);
+        STRING_OPTION(MFX_EXTBUFF_TIME_CODE);
+        STRING_OPTION(MFX_EXTBUFF_UNIVERSAL_TEMPORAL_LAYERS);
+        STRING_OPTION(MFX_EXTBUFF_VIDEO_SIGNAL_INFO);
+        STRING_OPTION(MFX_EXTBUFF_VIDEO_SIGNAL_INFO_IN);
+        STRING_OPTION(MFX_EXTBUFF_VIDEO_SIGNAL_INFO_OUT);
+        STRING_OPTION(MFX_EXTBUFF_VP8_CODING_OPTION);
+        STRING_OPTION(MFX_EXTBUFF_VP9_PARAM);
+        STRING_OPTION(MFX_EXTBUFF_VP9_SEGMENTATION);
+        STRING_OPTION(MFX_EXTBUFF_VP9_TEMPORAL_LAYERS);
+        STRING_OPTION(MFX_EXTBUFF_VPP_3DLUT);
+        STRING_OPTION(MFX_EXTBUFF_VPP_AUXDATA);
+        STRING_OPTION(MFX_EXTBUFF_VPP_COLOR_CONVERSION);
+        STRING_OPTION(MFX_EXTBUFF_VPP_COLORFILL);
+        STRING_OPTION(MFX_EXTBUFF_VPP_COMPOSITE);
+        STRING_OPTION(MFX_EXTBUFF_VPP_DEINTERLACING);
+        STRING_OPTION(MFX_EXTBUFF_VPP_DENOISE2);
+        STRING_OPTION(MFX_EXTBUFF_VPP_DETAIL);
+        STRING_OPTION(MFX_EXTBUFF_VPP_DONOTUSE);
+        STRING_OPTION(MFX_EXTBUFF_VPP_DOUSE);
+        STRING_OPTION(MFX_EXTBUFF_VPP_FIELD_PROCESSING);
+        STRING_OPTION(MFX_EXTBUFF_VPP_FRAME_RATE_CONVERSION);
+        STRING_OPTION(MFX_EXTBUFF_VPP_IMAGE_STABILIZATION);
+        STRING_OPTION(MFX_EXTBUFF_VPP_MCTF);
+        STRING_OPTION(MFX_EXTBUFF_VPP_MIRRORING);
+        STRING_OPTION(MFX_EXTBUFF_VPP_PROCAMP);
+        STRING_OPTION(MFX_EXTBUFF_VPP_ROTATION);
+        STRING_OPTION(MFX_EXTBUFF_VPP_SCALING);
+        STRING_OPTION(MFX_EXTBUFF_VPP_SCENE_ANALYSIS);
+        STRING_OPTION(MFX_EXTBUFF_VPP_VIDEO_SIGNAL_INFO);
+#ifdef ONEVPL_EXPERIMENTAL
+        STRING_OPTION(MFX_EXTBUFF_ENCODESTATS);
+        STRING_OPTION(MFX_EXTBUFF_TUNE_ENCODE_QUALITY);
+        STRING_OPTION(MFX_EXTBUFF_VPP_PERC_ENC_PREFILTER);
+#endif
+        default:
+            break;
+    }
+
+    // unknown format - print fourCC
+    return _print_fourcc(extbufID);
+}
+
+const char *_print_ColorFormat(mfxU32 colorFormat) {
+    switch (colorFormat) {
+        STRING_OPTION(MFX_FOURCC_A2RGB10);
+        STRING_OPTION(MFX_FOURCC_ABGR16);
+        STRING_OPTION(MFX_FOURCC_ABGR16F);
+        STRING_OPTION(MFX_FOURCC_ARGB16);
+        STRING_OPTION(MFX_FOURCC_AYUV);
+        STRING_OPTION(MFX_FOURCC_AYUV_RGB4);
+        STRING_OPTION(MFX_FOURCC_BGR4);
+        STRING_OPTION(MFX_FOURCC_BGRP);
+        STRING_OPTION(MFX_FOURCC_I010);
+        STRING_OPTION(MFX_FOURCC_I210);
+        STRING_OPTION(MFX_FOURCC_I422);
+        STRING_OPTION(MFX_FOURCC_IYUV);
+        STRING_OPTION(MFX_FOURCC_NV12);
+        STRING_OPTION(MFX_FOURCC_NV16);
+        STRING_OPTION(MFX_FOURCC_NV21);
+        STRING_OPTION(MFX_FOURCC_P010);
+        STRING_OPTION(MFX_FOURCC_P016);
+        STRING_OPTION(MFX_FOURCC_P210);
+        STRING_OPTION(MFX_FOURCC_P8);
+        STRING_OPTION(MFX_FOURCC_P8_TEXTURE);
+        STRING_OPTION(MFX_FOURCC_R16);
+        STRING_OPTION(MFX_FOURCC_RGB4);
+        STRING_OPTION(MFX_FOURCC_RGB565);
+        STRING_OPTION(MFX_FOURCC_RGBP);
+        STRING_OPTION(MFX_FOURCC_UYVY);
+        STRING_OPTION(MFX_FOURCC_XYUV);
+        STRING_OPTION(MFX_FOURCC_Y210);
+        STRING_OPTION(MFX_FOURCC_Y216);
+        STRING_OPTION(MFX_FOURCC_Y410);
+        STRING_OPTION(MFX_FOURCC_Y416);
+        STRING_OPTION(MFX_FOURCC_YUY2);
+        STRING_OPTION(MFX_FOURCC_YV12);
+        default:
+            break;
+    }
+
+    // unknown format - print fourCC
+    return _print_fourcc(colorFormat);
 }
 
 const char *_print_ProfileType(mfxU32 fourcc, mfxU32 type) {
@@ -470,7 +637,7 @@ int main(int argc, char *argv[]) {
             printf("%2smfxDecoderDescription:\n", "");
             printf("%4sVersion: %hu.%hu\n", "", dec->Version.Major, dec->Version.Minor);
             for (int codec = 0; codec < dec->NumCodecs; codec++) {
-                printf("%4sCodecID: %c%c%c%c\n", "", DECODE_FOURCC(dec->Codecs[codec].CodecID));
+                printf("%4sCodecID: %s\n", "", _print_CodecID(dec->Codecs[codec].CodecID));
                 printf("%4sMaxcodecLevel: %hu\n", "", dec->Codecs[codec].MaxcodecLevel);
                 for (int profile = 0; profile < dec->Codecs[codec].NumProfiles; profile++) {
                     printf("%6sProfile: %s\n",
@@ -512,10 +679,10 @@ int main(int argc, char *argv[]) {
                             if (0 != colorformat)
                                 printf(", ");
                             printf("%s",
-                                   _print_fourcc(dec->Codecs[codec]
-                                                     .Profiles[profile]
-                                                     .MemDesc[memtype]
-                                                     .ColorFormats[colorformat]));
+                                   _print_ColorFormat(dec->Codecs[codec]
+                                                          .Profiles[profile]
+                                                          .MemDesc[memtype]
+                                                          .ColorFormats[colorformat]));
                         }
                         printf("\n");
                     }
@@ -527,7 +694,7 @@ int main(int argc, char *argv[]) {
             printf("%2smfxEncoderDescription:\n", "");
             printf("%4sVersion: %hu.%hu\n", "", enc->Version.Major, enc->Version.Minor);
             for (int codec = 0; codec < enc->NumCodecs; codec++) {
-                printf("%4sCodecID: %c%c%c%c\n", "", DECODE_FOURCC(enc->Codecs[codec].CodecID));
+                printf("%4sCodecID: %s\n", "", _print_CodecID(enc->Codecs[codec].CodecID));
                 printf("%4sMaxcodecLevel: %hu\n", "", enc->Codecs[codec].MaxcodecLevel);
                 printf("%4sBiDirectionalPrediction: %hu\n",
                        "",
@@ -573,10 +740,10 @@ int main(int argc, char *argv[]) {
                             if (0 != colorformat)
                                 printf(", ");
                             printf("%s",
-                                   _print_fourcc(enc->Codecs[codec]
-                                                     .Profiles[profile]
-                                                     .MemDesc[memtype]
-                                                     .ColorFormats[colorformat]));
+                                   _print_ColorFormat(enc->Codecs[codec]
+                                                          .Profiles[profile]
+                                                          .MemDesc[memtype]
+                                                          .ColorFormats[colorformat]));
                         }
                         printf("\n");
                     }
@@ -588,9 +755,9 @@ int main(int argc, char *argv[]) {
             printf("%2smfxVPPDescription:\n", "");
             printf("%4sVersion: %hu.%hu\n", "", vpp->Version.Major, vpp->Version.Minor);
             for (int filter = 0; filter < vpp->NumFilters; filter++) {
-                printf("%4sFilterFourCC: %c%c%c%c\n",
+                printf("%4sFilterFourCC: %s\n",
                        "",
-                       DECODE_FOURCC(vpp->Filters[filter].FilterFourCC));
+                       _print_ExtbufID(vpp->Filters[filter].FilterFourCC));
                 printf("%4sMaxDelayInFrames: %hu\n", "", vpp->Filters[filter].MaxDelayInFrames);
                 for (int memtype = 0; memtype < vpp->Filters[filter].NumMemTypes; memtype++) {
                     printf(
@@ -621,7 +788,7 @@ int main(int argc, char *argv[]) {
                         printf(
                             "%8sInFormat: %s\n",
                             "",
-                            _print_fourcc(
+                            _print_ColorFormat(
                                 vpp->Filters[filter].MemDesc[memtype].Formats[informat].InFormat));
                         printf("%10sOutFormats: ", "");
                         for (int outformat = 0;
@@ -631,10 +798,10 @@ int main(int argc, char *argv[]) {
                             if (0 != outformat)
                                 printf(", ");
                             printf("%s",
-                                   _print_fourcc(vpp->Filters[filter]
-                                                     .MemDesc[memtype]
-                                                     .Formats[informat]
-                                                     .OutFormats[outformat]));
+                                   _print_ColorFormat(vpp->Filters[filter]
+                                                          .MemDesc[memtype]
+                                                          .Formats[informat]
+                                                          .OutFormats[outformat]));
                         }
                         printf("\n");
                     }
