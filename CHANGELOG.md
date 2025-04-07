@@ -13,6 +13,8 @@ GPUs from the command line.
 ### Added
 - Intel® Media Transcode Accelerator as a supported device
 - New strings in vpl-inspect tool to improve readability of output.
+- Option ``-props`` to vpl-inspect tool to enable property-based
+  capabilities query.
 
 ### Changed
 - Default Ubuntu build to 24.04.

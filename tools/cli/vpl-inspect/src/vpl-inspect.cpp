@@ -19,6 +19,9 @@
 #include <stdio.h>
 
 #include <algorithm>
+#include <list>
+#include <map>
+#include <sstream>
 #include <string>
 
 #include "vpl/mfx.h"
@@ -461,6 +464,63 @@ const char *_print_ProfileType(mfxU32 fourcc, mfxU32 type) {
 }
 
 // clang-format off
+
+#ifdef ONEVPL_EXPERIMENTAL
+typedef struct {
+    mfxU32 propData;
+    mfxU8 *propStr;
+} ConfigPropInfo;
+
+static const std::map<std::string, ConfigPropInfo> ConfigPropMap = {
+    { "basic:all", { 0, (mfxU8 *)"mfxImplDescription" } },  // no codec/vpp info, just query minimal (basic) info from mfxImplDescription
+
+    { "dec:all",   { 0, (mfxU8 *)"mfxImplDescription.mfxDecoderDescription" } },
+    { "enc:all",   { 0, (mfxU8 *)"mfxImplDescription.mfxEncoderDescription" } },
+    { "vpp:all",   { 0, (mfxU8 *)"mfxImplDescription.mfxVPPDescription"     } },
+
+    { "dec:av1",   { MFX_CODEC_AV1,   (mfxU8 *)"mfxImplDescription.mfxDecoderDescription.decoder.CodecID" } },
+    { "dec:avc",   { MFX_CODEC_AVC,   (mfxU8 *)"mfxImplDescription.mfxDecoderDescription.decoder.CodecID" } },
+    { "dec:hevc",  { MFX_CODEC_HEVC,  (mfxU8 *)"mfxImplDescription.mfxDecoderDescription.decoder.CodecID" } },
+    { "dec:mpeg2", { MFX_CODEC_MPEG2, (mfxU8 *)"mfxImplDescription.mfxDecoderDescription.decoder.CodecID" } },
+    { "dec:vc1",   { MFX_CODEC_VC1,   (mfxU8 *)"mfxImplDescription.mfxDecoderDescription.decoder.CodecID" } },
+    { "dec:vp8",   { MFX_CODEC_VP8,   (mfxU8 *)"mfxImplDescription.mfxDecoderDescription.decoder.CodecID" } },
+    { "dec:vp9",   { MFX_CODEC_VP9,   (mfxU8 *)"mfxImplDescription.mfxDecoderDescription.decoder.CodecID" } },
+    { "dec:vvc",   { MFX_CODEC_VVC,   (mfxU8 *)"mfxImplDescription.mfxDecoderDescription.decoder.CodecID" } },
+
+    { "enc:av1",   { MFX_CODEC_AV1,   (mfxU8 *)"mfxImplDescription.mfxEncoderDescription.encoder.CodecID" } },
+    { "enc:avc",   { MFX_CODEC_AVC,   (mfxU8 *)"mfxImplDescription.mfxEncoderDescription.encoder.CodecID" } },
+    { "enc:hevc",  { MFX_CODEC_HEVC,  (mfxU8 *)"mfxImplDescription.mfxEncoderDescription.encoder.CodecID" } },
+    { "enc:mpeg2", { MFX_CODEC_MPEG2, (mfxU8 *)"mfxImplDescription.mfxEncoderDescription.encoder.CodecID" } },
+    { "enc:vc1",   { MFX_CODEC_VC1,   (mfxU8 *)"mfxImplDescription.mfxEncoderDescription.encoder.CodecID" } },
+    { "enc:vp8",   { MFX_CODEC_VP8,   (mfxU8 *)"mfxImplDescription.mfxEncoderDescription.encoder.CodecID" } },
+    { "enc:vp9",   { MFX_CODEC_VP9,   (mfxU8 *)"mfxImplDescription.mfxEncoderDescription.encoder.CodecID" } },
+    { "enc:vvc",   { MFX_CODEC_VVC,   (mfxU8 *)"mfxImplDescription.mfxEncoderDescription.encoder.CodecID" } },
+
+    { "vpp:3dlut", { MFX_EXTBUFF_VPP_3DLUT,                  (mfxU8 *)"mfxImplDescription.mfxVPPDescription.filter.FilterFourCC" } },
+    { "vpp:aifrc", { MFX_EXTBUFF_VPP_AI_FRAME_INTERPOLATION, (mfxU8 *)"mfxImplDescription.mfxVPPDescription.filter.FilterFourCC" } },
+    { "vpp:aisr",  { MFX_EXTBUFF_VPP_AI_SUPER_RESOLUTION,    (mfxU8 *)"mfxImplDescription.mfxVPPDescription.filter.FilterFourCC" } },
+    { "vpp:auxd",  { MFX_EXTBUFF_VPP_AUXDATA,                (mfxU8 *)"mfxImplDescription.mfxVPPDescription.filter.FilterFourCC" } },
+    { "vpp:csc",   { MFX_EXTBUFF_VPP_COLOR_CONVERSION,       (mfxU8 *)"mfxImplDescription.mfxVPPDescription.filter.FilterFourCC" } },
+    { "vpp:cfill", { MFX_EXTBUFF_VPP_COLORFILL,              (mfxU8 *)"mfxImplDescription.mfxVPPDescription.filter.FilterFourCC" } },
+    { "vpp:comp",  { MFX_EXTBUFF_VPP_COMPOSITE,              (mfxU8 *)"mfxImplDescription.mfxVPPDescription.filter.FilterFourCC" } },
+    { "vpp:deint", { MFX_EXTBUFF_VPP_DEINTERLACING,          (mfxU8 *)"mfxImplDescription.mfxVPPDescription.filter.FilterFourCC" } },
+    { "vpp:dns2",  { MFX_EXTBUFF_VPP_DENOISE2,               (mfxU8 *)"mfxImplDescription.mfxVPPDescription.filter.FilterFourCC" } },
+    { "vpp:det",   { MFX_EXTBUFF_VPP_DETAIL,                 (mfxU8 *)"mfxImplDescription.mfxVPPDescription.filter.FilterFourCC" } },
+    { "vpp:douse", { MFX_EXTBUFF_VPP_DOUSE,                  (mfxU8 *)"mfxImplDescription.mfxVPPDescription.filter.FilterFourCC" } },
+    { "vpp:fproc", { MFX_EXTBUFF_VPP_FIELD_PROCESSING,       (mfxU8 *)"mfxImplDescription.mfxVPPDescription.filter.FilterFourCC" } },
+    { "vpp:frc",   { MFX_EXTBUFF_VPP_FRAME_RATE_CONVERSION,  (mfxU8 *)"mfxImplDescription.mfxVPPDescription.filter.FilterFourCC" } },
+    { "vpp:imgst", { MFX_EXTBUFF_VPP_IMAGE_STABILIZATION,    (mfxU8 *)"mfxImplDescription.mfxVPPDescription.filter.FilterFourCC" } },
+    { "vpp:mctf",  { MFX_EXTBUFF_VPP_MCTF,                   (mfxU8 *)"mfxImplDescription.mfxVPPDescription.filter.FilterFourCC" } },
+    { "vpp:mirr",  { MFX_EXTBUFF_VPP_MIRRORING,              (mfxU8 *)"mfxImplDescription.mfxVPPDescription.filter.FilterFourCC" } },
+    { "vpp:perc",  { MFX_EXTBUFF_VPP_PERC_ENC_PREFILTER,     (mfxU8 *)"mfxImplDescription.mfxVPPDescription.filter.FilterFourCC" } },
+    { "vpp:proc",  { MFX_EXTBUFF_VPP_PROCAMP,                (mfxU8 *)"mfxImplDescription.mfxVPPDescription.filter.FilterFourCC" } },
+    { "vpp:rot",   { MFX_EXTBUFF_VPP_ROTATION,               (mfxU8 *)"mfxImplDescription.mfxVPPDescription.filter.FilterFourCC" } },
+    { "vpp:scale", { MFX_EXTBUFF_VPP_SCALING,                (mfxU8 *)"mfxImplDescription.mfxVPPDescription.filter.FilterFourCC" } },
+    { "vpp:scnan", { MFX_EXTBUFF_VPP_SCENE_ANALYSIS,         (mfxU8 *)"mfxImplDescription.mfxVPPDescription.filter.FilterFourCC" } },
+    { "vpp:vsig",  { MFX_EXTBUFF_VPP_VIDEO_SIGNAL_INFO,      (mfxU8 *)"mfxImplDescription.mfxVPPDescription.filter.FilterFourCC" } },
+};
+#endif
+
 static void Usage(void) {
     printf("\nUsage: vpl-inspect [options]\n");
     printf("\nIf no options are specified, print default capabilities report (MFX_IMPLCAPS_IMPLDESCSTRUCTURE)\n");
@@ -470,6 +530,10 @@ static void Usage(void) {
     printf("   -ex ............ print extended device ID info (MFX_IMPLCAPS_DEVICE_ID_EXTENDED)\n");
     printf("   -f ............. print list of implemented functions (MFX_IMPLCAPS_IMPLEMENTEDFUNCTIONS)\n");
     printf("   -d3d9 .......... only enumerate implementations supporting D3D9\n");
+#ifdef ONEVPL_EXPERIMENTAL
+    printf("   -props ......... list of props as KV pairs, separated with commas (ex: -props dec:all,enc:av1)\n");
+    printf("                    use '-props list' to print list of available properties\n");
+#endif
 #if defined(_WIN32) || defined(_WIN64)
     printf("   -disp .......... print path to loaded dispatcher library\n");
 #endif
@@ -488,8 +552,10 @@ int main(int argc, char *argv[]) {
     bool bRequireD3D9               = false;
     bool bPrintExtendedDeviceID     = false;
     bool bPrintDispInfo             = false;
+    bool bPropsQuery                = false;
 #ifdef ONEVPL_EXPERIMENTAL
     bool bPrintSurfaceTypes = true;
+    std::list<std::string> propStrList;
 #endif
 
     for (int argIdx = 1; argIdx < argc; argIdx++) {
@@ -507,6 +573,33 @@ int main(int argc, char *argv[]) {
         else if (nextArg == "-d3d9") {
             bRequireD3D9 = true;
         }
+#ifdef ONEVPL_EXPERIMENTAL
+        else if (nextArg == "-props") {
+            bPropsQuery        = true;
+            bPrintSurfaceTypes = false;
+            std::string propStr;
+            if (++argIdx < argc) {
+                propStr = argv[argIdx];
+
+                std::string s;
+                std::stringstream propSS(propStr);
+                while (getline(propSS, s, ',')) {
+                    propStrList.push_back(s);
+                }
+            }
+            else {
+                printf("Error - must specify which props\n");
+                return -1;
+            }
+
+            if (propStrList.front() == "list") {
+                printf("Available props arguments:\n");
+                for (auto const &it : ConfigPropMap)
+                    printf("  %s\n", it.first.c_str());
+                return 0;
+            }
+        }
+#endif
         else if (nextArg == "-?" || nextArg == "-help") {
             Usage();
             return -1;
@@ -567,6 +660,36 @@ int main(int argc, char *argv[]) {
             return -1;
         }
     }
+
+#ifdef ONEVPL_EXPERIMENTAL
+    if (bPropsQuery) {
+        mfxStatus sts;
+        mfxVariant var      = {};
+        var.Version.Version = MFX_VARIANT_VERSION;
+
+        for (const std::string &propStr : propStrList) {
+            mfxConfig cfg = MFXCreateConfig(
+                loader); // create new config for every property, for e.g. multiple codecs
+
+            auto it = ConfigPropMap.find(propStr);
+            if (it == ConfigPropMap.end()) {
+                printf("Error - invalid property string %s\n", propStr.c_str());
+                printf("run 'vplinspect -props list' for list of supported properties\n");
+                return -1;
+            }
+
+            // add property with MFX_VARIANT_TYPE_QUERY
+            var.Type = static_cast<mfxVariantType>(MFX_VARIANT_TYPE_U32 | MFX_VARIANT_TYPE_QUERY);
+            var.Data.U32 = it->second.propData;
+            sts          = MFXSetConfigFilterProperty(cfg, it->second.propStr, var);
+
+            if (sts) {
+                printf("Error - MFXSetConfigFilterProperty() returned %d\n", sts);
+                return -1;
+            }
+        }
+    }
+#endif
 
     int i = 0;
     mfxImplDescription *idesc;
@@ -631,7 +754,7 @@ int main(int argc, char *argv[]) {
             printf("%4sSubDeviceID: %s\n", "", dev->SubDevices[subdevice].SubDeviceID);
         }
 
-        if (bFullInfo) {
+        if (bFullInfo || bPropsQuery) {
             /* mfxDecoderDescription */
             mfxDecoderDescription *dec = &idesc->Dec;
             printf("%2smfxDecoderDescription:\n", "");
