@@ -448,11 +448,11 @@ int RunEncode(Params *params, FileInfo *fileInfo) {
         mfxEncParams.mfx.FrameInfo.CropW = w;
         mfxEncParams.mfx.FrameInfo.CropH = h;
 
-        if ((encCtx.surfaceFlags == MFX_SURFACE_FLAG_IMPORT_SHARED) && ((w != ALIGN16(w)) || (h != ALIGN16(h)))) {
-            std::cout << "ERROR: desktop resolution " << w << "x" << h << " is not aligned to 16 pixels. SURFACE_MODE_SHARED is not supported. Run again with '-mode copy'"
-                      << std::endl;
-            return -1;
-        }
+        // if ((encCtx.surfaceFlags == MFX_SURFACE_FLAG_IMPORT_SHARED) && ((w != ALIGN16(w)) || (h != ALIGN16(h)))) {
+        //     std::cout << "ERROR: desktop resolution " << w << "x" << h << " is not aligned to 16 pixels. SURFACE_MODE_SHARED is not supported. Run again with '-mode copy'"
+        //               << std::endl;
+        //     return -1;
+        // }
 #ifdef _WIN32
         mfxEncParams.mfx.FrameInfo.FourCC       = MFX_FOURCC_RGB4;
         mfxEncParams.mfx.FrameInfo.ChromaFormat = MFX_CHROMAFORMAT_YUV444;
@@ -484,6 +484,25 @@ int RunEncode(Params *params, FileInfo *fileInfo) {
     VERIFY(MFX_ERR_NONE <= sts, "ERROR: query Encode");
     if (sts)
         std::cout << "Warning: MFXVideoENCODE_Query returned " << sts << std::endl;
+
+    // MFXVideoENCODE_Query() may force alignment to 16 pixels. Set Height/Width back to original values for testing
+    printf("\nDisabling alignment - call MFXVideoENCODE_Init() with original height and width\n");
+    #ifdef TOOLS_ENABLE_SCREEN_CAPTURE
+    mfxU16 w = 0, h = 0;
+    cc.GetCaptureResolution(w, h);
+    mfxEncParams.mfx.FrameInfo.Height = h ? h : params->srcHeight;
+    mfxEncParams.mfx.FrameInfo.Width  = w ? w : params->srcWidth;
+    #endif
+
+    char* fourCC = (char*)(&mfxEncParams.mfx.CodecId);
+    printf("mfxEncParams.mfx.FrameInfo.FourCC = %c%c%c%c\n", fourCC[0], fourCC[1], fourCC[2], fourCC[3]);
+    printf("mfxEncParams.mfx.FrameInfo.Width  = %d\n", mfxEncParams.mfx.FrameInfo.Width);
+    printf("mfxEncParams.mfx.FrameInfo.Height = %d\n", mfxEncParams.mfx.FrameInfo.Height);
+    printf("mfxEncParams.mfx.FrameInfo.CropW  = %d\n", mfxEncParams.mfx.FrameInfo.CropW);
+    printf("mfxEncParams.mfx.FrameInfo.CropH  = %d\n", mfxEncParams.mfx.FrameInfo.CropH);
+
+    printf("params->srcHeight  = %d\n", params->srcHeight);
+    printf("\n");
 
     // init encoder
     sts = MFXVideoENCODE_Init(vplSession.GetSession(), &mfxEncParams);
