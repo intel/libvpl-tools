@@ -22,12 +22,12 @@ jobs:
 
       - name: Pull Docker image
         run: >
-          docker pull gcr.io/openssf/scorecard:stable
+          docker pull ghcr.io/ossf/scorecard:v5.4.0
 
       - name: Perform required checks
         run: >
           docker run --rm -v $(pwd):/tmp/work -w /tmp/work
-          gcr.io/openssf/scorecard:stable
+          ghcr.io/ossf/scorecard:v5.4.0
           --checks=Token-Permissions,Dangerous-Workflow,Binary-Artifacts
           --show-details
           --verbosity warn
@@ -37,7 +37,7 @@ jobs:
       - name: Generate full report
         run: >
           docker run --rm -v $(pwd):/tmp/work -w /tmp/work
-          gcr.io/openssf/scorecard:stable
+          ghcr.io/ossf/scorecard:v5.4.0
           --local /tmp/work/source
           --format json
           > scorecard.json
